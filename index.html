@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f1720">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Treino Híbrido — Juarez</title>
+<style>
+:root {
+  --bg:#0f1720; --panel:#18232e; --panel2:#202e3a; --line:#314351;
+  --text:#eef4f7; --muted:#a8b8c4; --accent:#65d39a; --accent2:#f0c86b;
+  --danger:#ff7b7b; --blue:#7bb9ff; --shadow:0 12px 35px rgba(0,0,0,.24);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:linear-gradient(180deg,#0c131a,var(--bg));color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.45}
+a{color:var(--blue)}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{max-width:1120px;margin:auto;padding:16px 16px 90px}
+.hero{background:linear-gradient(135deg,#1c2e32,#18232e 60%,#242d31);border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:var(--shadow)}
+.hero h1{margin:0 0 6px;font-size:clamp(1.6rem,5vw,2.5rem)}
+.hero p{margin:.35rem 0;color:var(--muted)}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.badge{border:1px solid var(--line);background:#14202a;border-radius:999px;padding:7px 10px;font-size:.86rem}
+.nav{position:sticky;top:0;z-index:20;display:flex;gap:8px;overflow:auto;padding:12px 0;background:linear-gradient(180deg,var(--bg) 70%,transparent)}
+.nav button{white-space:nowrap;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:9px 12px;border-radius:12px}
+.nav button.active{background:var(--accent);color:#082017;border-color:transparent;font-weight:700}
+.section{display:none}
+.section.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+.card{grid-column:span 12;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+.card h2,.card h3{margin-top:0}
+.metric-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.metric{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:12px}
+.metric b{font-size:1.3rem;display:block}
+.muted{color:var(--muted)}
+.day-card{margin:12px 0}
+.day-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.day-head h3{margin-bottom:3px}
+.exercise{border-top:1px solid var(--line);padding:13px 0}
+.exercise:first-of-type{border-top:0}
+.exercise-top{display:flex;gap:10px;justify-content:space-between;align-items:flex-start}
+.exercise-title{font-weight:750}
+.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:3px 7px;font-size:.78rem;color:var(--muted);margin:3px 4px 0 0}
+.video{text-decoration:none;background:#2a3945;border:1px solid var(--line);padding:7px 9px;border-radius:10px;white-space:nowrap}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+label{display:block;font-size:.86rem;color:var(--muted)}
+input,select,textarea{width:100%;margin-top:5px;border:1px solid var(--line);background:#101a22;color:var(--text);border-radius:10px;padding:10px}
+textarea{min-height:90px;resize:vertical}
+.btn{border:0;border-radius:12px;padding:11px 14px;font-weight:750;background:var(--accent);color:#092018}
+.btn.secondary{background:#2a3945;color:var(--text);border:1px solid var(--line)}
+.btn.warn{background:var(--accent2);color:#2a210b}
+.btn.danger{background:#4a2529;color:#ffd7d7;border:1px solid #744148}
+.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}
+.readiness{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.ready-btn{border:1px solid var(--line);border-radius:14px;padding:12px;background:var(--panel2);color:var(--text)}
+.ready-btn.selected{outline:2px solid var(--accent)}
+.ready-btn[data-value="Vermelho"].selected{outline-color:var(--danger)}
+.ready-btn[data-value="Amarelo"].selected{outline-color:var(--accent2)}
+.readiness-note{margin-top:10px;padding:12px;border-radius:12px;background:#111d25;border:1px solid var(--line)}
+.set-table{width:100%;border-collapse:collapse;margin-top:10px}
+.set-table th,.set-table td{padding:6px;border-bottom:1px solid var(--line);text-align:left;font-size:.86rem}
+.set-table input{margin:0;min-width:70px;padding:8px}
+.history-item{border:1px solid var(--line);border-radius:15px;padding:14px;margin:10px 0;background:var(--panel2)}
+.history-head{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.small{font-size:.84rem}
+.notice{background:#122821;border:1px solid #2c644e;border-radius:14px;padding:13px}
+.notice.warn{background:#2b2514;border-color:#6d5c29}
+.notice.danger{background:#301b1d;border-color:#704047}
+.timer{position:fixed;right:14px;bottom:14px;z-index:30;background:#101a22;border:1px solid var(--line);border-radius:18px;padding:10px;box-shadow:var(--shadow);width:min(390px,calc(100vw - 28px))}
+.timer-header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.timer-header button{min-width:38px}
+.timer-body{margin-top:8px}
+.timer-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.timer-block{background:#17242e;border:1px solid var(--line);border-radius:13px;padding:9px}
+.timer-label{display:block;text-align:center;color:var(--muted);font-size:.78rem}
+.timer-display{font-size:1.55rem;font-weight:850;text-align:center;letter-spacing:.02em}
+.workout-display{font-size:1.35rem;font-weight:850;text-align:center}
+.timer-buttons{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-top:7px}
+.timer button{padding:7px 9px;border-radius:9px;border:1px solid var(--line);background:#22313c;color:var(--text)}
+.timer button.primary-mini{background:var(--accent);color:#092018;border-color:transparent;font-weight:800}
+.timer-progress{height:7px;background:#25343f;border-radius:999px;overflow:hidden;margin-top:7px}
+.timer-progress-bar{height:100%;width:0;background:var(--accent);transition:width .18s linear}
+.timer-settings{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
+.timer-settings button,.timer-settings label{font-size:.78rem}
+.timer-settings label{display:flex;align-items:center;gap:7px;background:#17242e;border:1px solid var(--line);padding:7px;border-radius:10px;color:var(--text)}
+.timer-settings input[type="checkbox"]{width:auto;margin:0}
+.timer-settings input[type="range"]{padding:0;margin:0;min-width:70px}
+.timer-status{text-align:center;color:var(--muted);font-size:.76rem;margin-top:6px;min-height:1.2em}
+.timer.collapsed .timer-body{display:none}
+.set-done{background:#16342a}
+.set-done td{border-bottom-color:#2f6f52}
+.set-done td:first-child{box-shadow:inset 3px 0 0 var(--accent);color:var(--accent);font-weight:700}
+.set-done .set-check{background:var(--accent);border:1px solid var(--accent);color:#08131a;font-weight:700}
+.set-check{width:auto!important;min-width:34px!important;margin:0!important;padding:7px!important}
+.set-table th:last-child,.set-table td:last-child{text-align:center}
+.hide{display:none!important}
+details{border:1px solid var(--line);border-radius:14px;padding:10px;margin-top:10px;background:#14202a}
+summary{cursor:pointer;font-weight:700}
+@media(min-width:760px){
+ .card.half{grid-column:span 6}
+ .metric-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .form-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(max-width:600px){
+ .exercise-top{flex-direction:column}
+ .video{align-self:flex-start}
+ .set-table th:nth-child(4),.set-table td:nth-child(4){display:none}
+ .timer{left:8px;right:8px;bottom:8px;width:auto} .timer-grid{grid-template-columns:1fr 1fr}
+}
+@media print{
+ body{background:white;color:black}
+ .nav,.timer,.actions,.video{display:none!important}
+ .section{display:block!important}
+ .card,.hero{box-shadow:none;border:1px solid #bbb;background:white}
+ input,select,textarea{border:1px solid #aaa;background:white;color:black}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="hero">
+    <h1>Treino híbrido — Juarez</h1>
+    <p>Primeiro ciclo: retorno, recomposição corporal, força e capacidade atlética.</p>
+    <div class="badges">
+      <span class="badge">5 dias úteis</span>
+      <span class="badge">40 min por sessão</span>
+      <span class="badge">≈ 8,1 km/dia de bicicleta</span>
+      <span class="badge">Punho esquerdo: evitar palma no chão</span>
+    </div>
+  </header>
+
+  <nav class="nav">
+    <button class="active" data-tab="inicio">Início</button>
+    <button data-tab="plano">Plano semanal</button>
+    <button data-tab="registrar">Registrar treino</button>
+    <button data-tab="historico">Histórico</button>
+    <button data-tab="exportar">Exportar</button>
+  </nav>
+
+  <section id="inicio" class="section active">
+    <div class="grid">
+      <div class="card">
+        <h2>Ponto de partida</h2>
+        <div class="metric-grid" id="metrics"></div>
+        <div class="actions">
+          <button class="btn secondary" onclick="showProfileEditor()">Editar medidas</button>
+        </div>
+        <div id="profileEditor" class="hide" style="margin-top:12px"></div>
+      </div>
+
+      <div class="card half">
+        <h3>Objetivo do ciclo</h3>
+        <p id="goalText"></p>
+        <p class="muted">Primeiro marco: reduzir cintura sem perder força, enquanto melhora barras, energia e consistência.</p>
+      </div>
+
+      <div class="card half">
+        <h3>Semáforo do sono</h3>
+        <div class="notice">
+          <b>Verde:</b> treino completo, RIR planejado.
+        </div>
+        <div class="notice warn" style="margin-top:8px">
+          <b>Amarelo:</b> faça 2 séries por exercício, RIR 3, sem condicionamento final.
+        </div>
+        <div class="notice danger" style="margin-top:8px">
+          <b>Vermelho:</b> bicicleta leve, mobilidade ou descanso. Não “pague” o treino perdido no dia seguinte.
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Regras do primeiro ciclo</h3>
+        <div class="grid">
+          <div class="card half" style="box-shadow:none">
+            <b>Semanas 1–2</b>
+            <p class="muted">RIR 2–3 nos compostos. Nada de falha absoluta. Encontrar cargas estáveis.</p>
+          </div>
+          <div class="card half" style="box-shadow:none">
+            <b>Semanas 3–4</b>
+            <p class="muted">RIR 1–2. Falha apenas, se quiser, na última série de isoladores seguros.</p>
+          </div>
+        </div>
+        <p><b>Progressão dupla:</b> mantenha a carga até atingir o topo da faixa em todas as séries com técnica limpa. Depois aumente o menor incremento possível.</p>
+        <p><b>Punho:</b> sem flexão com a palma no chão. Use halteres/barras de apoio ou pranchas nos antebraços.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="plano" class="section">
+    <div id="workoutPlan"></div>
+  </section>
+
+  <section id="registrar" class="section">
+    <div class="card">
+      <h2>Registrar sessão</h2>
+      <div class="form-grid">
+        <label>Data<input type="date" id="sessionDate"></label>
+        <label>Treino<select id="sessionDay"></select></label>
+        <label>Status<select id="sessionStatus"><option>Concluído</option><option>Parcial</option><option>Não treinou</option></select></label>
+        <label>Semáforo<select id="sessionReadiness"><option>Verde</option><option>Amarelo</option><option>Vermelho</option></select></label>
+      </div>
+
+      <h3 style="margin-top:18px">Como você chegou hoje?</h3>
+      <div class="readiness">
+        <button class="ready-btn selected" data-value="Verde" onclick="selectReadiness('Verde')">🟢<br><b>Verde</b><br><span class="small">Recuperado</span></button>
+        <button class="ready-btn" data-value="Amarelo" onclick="selectReadiness('Amarelo')">🟡<br><b>Amarelo</b><br><span class="small">Cansado, funcional</span></button>
+        <button class="ready-btn" data-value="Vermelho" onclick="selectReadiness('Vermelho')">🔴<br><b>Vermelho</b><br><span class="small">Sono ruim/exausto</span></button>
+      </div>
+      <div id="readinessNote" class="readiness-note"></div>
+
+      <div class="form-grid" style="margin-top:14px">
+        <label>Horas de sono<input id="sleepHours" placeholder="Ex.: 6,5"></label>
+        <label>Qualidade do sono (1–5)<input id="sleepQuality" type="number" min="1" max="5"></label>
+        <label>Energia (1–5)<input id="energy" type="number" min="1" max="5"></label>
+        <label>Dor atual (0–10)<input id="pain" type="number" min="0" max="10" value="0"></label>
+      </div>
+
+      <div id="exerciseLogger" style="margin-top:16px"></div>
+
+      <div class="form-grid" style="margin-top:14px">
+        <label>Peso corporal opcional<input id="bodyWeight" placeholder="kg"></label>
+        <label>Duração do treino<input id="workoutDurationField" placeholder="00:00:00" readonly></label>
+        <label style="grid-column:span 2">Observações<textarea id="sessionNotes" placeholder="Sono, técnica, dor, energia, aparelho usado, sensação de esforço..."></textarea></label>
+      </div>
+      <div class="actions">
+        <button class="btn" onclick="saveSession()">Salvar sessão</button>
+        <button class="btn secondary" onclick="resetSessionForm()">Limpar formulário</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="historico" class="section">
+    <div class="card">
+      <h2>Histórico</h2>
+      <div id="history"></div>
+    </div>
+  </section>
+
+  <section id="exportar" class="section">
+    <div class="card">
+      <h2>Exportar acompanhamento</h2>
+      <p>Toque em “Compartilhar acompanhamento” para abrir o menu de compartilhamento do celular e escolher o ChatGPT. Se o recurso não aparecer, baixe o arquivo .md e anexe-o na conversa. O relatório inclui medidas, plano e histórico registrado.</p>
+      <div class="actions">
+        <button class="btn" onclick="shareMarkdown()">Compartilhar acompanhamento</button>
+        <button class="btn" onclick="exportMarkdown()">Baixar acompanhamento .md</button>
+        <button class="btn warn" onclick="exportHtmlReport()">Baixar relatório .html</button>
+        <button class="btn secondary" onclick="window.print()">Imprimir / salvar PDF</button>
+      </div>
+      <details>
+        <summary>Backup e privacidade</summary>
+        <p class="muted">Os registros ficam salvos localmente no navegador deste aparelho. Não são enviados automaticamente para nenhum servidor. Exporte periodicamente para não perder seu histórico.</p>
+        <button class="btn danger" onclick="clearAllData()">Apagar todos os registros locais</button>
+      </details>
+    </div>
+  </section>
+</div>
+
+<div class="timer" id="timerPanel">
+  <div class="timer-header">
+    <b>⏱ Cronômetros</b>
+    <button onclick="toggleTimerPanel()" aria-label="Recolher cronômetros" id="timerCollapseBtn">−</button>
+  </div>
+  <div class="timer-body">
+    <div class="timer-grid">
+      <div class="timer-block">
+        <span class="timer-label">TREINO TOTAL</span>
+        <div class="workout-display" id="workoutTimerDisplay">00:00:00</div>
+        <div class="timer-buttons">
+          <button class="primary-mini" onclick="startWorkoutTimer()">Iniciar</button>
+          <button onclick="pauseWorkoutTimer()">Pausar</button>
+          <button onclick="finishWorkoutTimer()">Finalizar</button>
+          <button onclick="resetWorkoutTimer()">Zerar</button>
+        </div>
+      </div>
+      <div class="timer-block">
+        <span class="timer-label">DESCANSO</span>
+        <div class="timer-display" id="timerDisplay">Pronto</div>
+        <div class="timer-progress"><div class="timer-progress-bar" id="restProgressBar"></div></div>
+        <div class="timer-buttons">
+          <button onclick="startTimer(30)">30s</button>
+          <button onclick="startTimer(45)">45s</button>
+          <button onclick="startTimer(60)">60s</button>
+          <button onclick="startTimer(75)">75s</button>
+          <button onclick="startTimer(90)">90s</button>
+          <button onclick="startTimer(120)">120s</button>
+          <button onclick="addRestTime(15)">+15s</button>
+          <button onclick="stopTimer()">Parar</button>
+        </div>
+      </div>
+    </div>
+    <div class="timer-settings">
+      <button class="primary-mini" id="alertEnableBtn" onclick="enableAlerts()">Ativar som e vibração</button>
+      <button onclick="testAlerts()">Testar alerta</button>
+      <label>Volume <input type="range" id="alertVolume" min="0.05" max="0.35" step="0.05" value="0.25"></label>
+      <label><input type="checkbox" id="vibrationEnabled" checked> Vibrar ao terminar</label>
+      <label><input type="checkbox" id="keepAwake" onchange="toggleWakeLock()"> Manter tela ligada</label>
+      <label><input type="checkbox" id="autoRestEnabled" checked> Descanso automático</label>
+    </div>
+    <div class="timer-status" id="timerStatus">Toque em “Ativar som e vibração” antes do treino.</div>
+  </div>
+</div>
+
+<script>
+const WORKOUTS = {"segunda": {"label": "Segunda — Superior A", "focus": "Força em peito e costas", "duration": "38–40 min", "warmup": ["Como você chega de bicicleta, faça apenas 3–4 min de preparação específica.", "Face pull leve 2×12 + 1 série leve do primeiro exercício de peito e de costas."], "exercises": [{"name": "Supino vertical articulado", "sets": 3, "reps": "6–8", "rest": 90, "rir": "2–3", "notes": "Escápulas apoiadas; punhos neutros; sem falha nas 2 primeiras semanas.", "video": "https://www.youtube.com/watch?v=QdwBcv8D9OE"}, {"name": "Puxada frontal pegada neutra", "sets": 3, "reps": "8–10", "rest": 90, "rir": "2–3", "notes": "Peito alto; evite balançar; controle a volta.", "video": "https://www.youtube.com/watch?v=hxUqhj9TqJ8"}, {"name": "Supino inclinado com halteres", "sets": 2, "reps": "8–10", "rest": 75, "rir": "2", "notes": "A primeira série leve pode ser aquecimento. Punho alinhado.", "video": "https://www.youtube.com/watch?v=RGeSgQmO1EU"}, {"name": "Remada articulada com apoio no peito", "sets": 2, "reps": "8–10", "rest": 75, "rir": "2", "notes": "Cotovelos guiam o movimento; não tire o peito do apoio.", "video": "https://www.youtube.com/results?search_query=remada+articulada+apoio+no+peito+execucao+correta"}, {"name": "Tríceps na corda", "sets": 2, "reps": "10–12", "rest": 45, "rir": "1–2", "notes": "Pode alternar com rosca martelo.", "video": "https://www.youtube.com/results?search_query=triceps+corda+execucao+correta"}, {"name": "Rosca martelo", "sets": 2, "reps": "10–12", "rest": 60, "rir": "1–2", "notes": "Sem balançar o tronco; descida controlada.", "video": "https://www.youtube.com/watch?v=J_I6MVH2v4E"}, {"name": "Prancha nos antebraços", "sets": 2, "reps": "40–60 s", "rest": 30, "rir": "—", "notes": "Glúteos e abdômen contraídos; sem afundar a lombar.", "video": "https://www.youtube.com/watch?v=Yu0wjtD5FkU"}]}, "terca": {"label": "Terça — Inferior A", "focus": "Força, posterior e core", "duration": "38–40 min", "warmup": ["Mobilidade de quadril e tornozelo por 3–4 min.", "Faça 1–2 séries progressivas leves do primeiro exercício."], "exercises": [{"name": "Leg press 45° ou hack squat", "sets": 3, "reps": "6–10", "rest": 120, "rir": "2–3", "notes": "Escolha o aparelho mais confortável. Amplitude controlada, lombar apoiada.", "video": "https://www.youtube.com/watch?v=waAxlYvtCcI"}, {"name": "Levantamento terra romeno com halteres", "sets": 3, "reps": "8–10", "rest": 90, "rir": "2–3", "notes": "Quadril vai para trás; coluna neutra; pare antes de perder posição.", "video": "https://www.youtube.com/watch?v=tveTE065Ub0"}, {"name": "Mesa ou cadeira flexora", "sets": 2, "reps": "10–12", "rest": 60, "rir": "1–2", "notes": "Sem tirar o quadril do apoio.", "video": "https://www.youtube.com/results?search_query=mesa+flexora+execucao+correta"}, {"name": "Panturrilha em pé ou no leg press", "sets": 2, "reps": "12–15", "rest": 45, "rir": "1–2", "notes": "Amplitude completa e pausa curta no alto.", "video": "https://www.youtube.com/results?search_query=panturrilha+em+pe+execucao+correta"}, {"name": "Pallof press ou dead bug", "sets": 2, "reps": "8–10/lado", "rest": 45, "rir": "—", "notes": "Core sem dor; controle e respiração.", "video": "https://www.youtube.com/results?search_query=pallof+press+execucao+correta"}]}, "quarta": {"label": "Quarta — Superior B", "focus": "Barras, costas e braços", "duration": "38–40 min", "warmup": ["Mobilidade de ombros + 1 série leve de puxada e empurrada."], "exercises": [{"name": "Barra fixa ou barra assistida", "sets": 4, "reps": "3–6", "rest": 120, "rir": "1–2", "notes": "Pare antes de perder o controle. Use assistência para manter 3–6 boas repetições.", "video": "https://www.youtube.com/results?search_query=barra+fixa+assistida+execucao+correta"}, {"name": "Supino inclinado na máquina", "sets": 3, "reps": "8–10", "rest": 90, "rir": "2", "notes": "Ajuste o banco para as alças ficarem na linha superior do peito.", "video": "https://www.youtube.com/shorts/KNuTH1LRq0Y"}, {"name": "Remada baixa neutra", "sets": 3, "reps": "8–10", "rest": 90, "rir": "2", "notes": "Tronco estável; cotovelos próximos do corpo.", "video": "https://www.youtube.com/watch?v=EHHKXwVcAoM"}, {"name": "Elevação lateral", "sets": 2, "reps": "12–15", "rest": 45, "rir": "1–2", "notes": "Carga que permita controle; sem impulso.", "video": "https://www.youtube.com/results?search_query=elevacao+lateral+halteres+execucao+correta"}, {"name": "Tríceps na polia + rosca na polia", "sets": 2, "reps": "10–12 cada", "rest": 60, "rir": "1–2", "notes": "Faça em bi-set para caber em 40 minutos.", "video": "https://www.youtube.com/results?search_query=triceps+polia+rosca+polia+execucao"}]}, "quinta": {"label": "Quinta — Atlético", "focus": "Potência, unilateral, core e condicionamento", "duration": "35–40 min", "warmup": ["4 min: mobilidade de quadril, dobradiça de quadril e 2 séries leves de swing."], "exercises": [{"name": "Kettlebell swing", "sets": 4, "reps": "10", "rest": 60, "rir": "técnico", "notes": "Movimento explosivo de quadril; não transformar em agachamento; nunca até a falha.", "video": "https://www.youtube.com/results?search_query=kettlebell+swing+execucao+correta"}, {"name": "Agachamento búlgaro", "sets": 2, "reps": "8/lado", "rest": 75, "rir": "2–3", "notes": "Comece leve. Segure apoio se necessário.", "video": "https://www.youtube.com/results?search_query=agachamento+bulgaro+execucao+correta"}, {"name": "Suitcase carry (caminhada unilateral)", "sets": 3, "reps": "20–30 m/lado", "rest": 45, "rir": "—", "notes": "Tronco alto; não incline para o lado do peso.", "video": "https://www.youtube.com/results?search_query=suitcase+carry+execucao+correta"}, {"name": "Remo ergômetro — intervalos", "sets": 6, "reps": "30 s forte + 60 s leve", "rest": 0, "rir": "forte controlado", "notes": "Sem sprint máximo nas primeiras 2 semanas.", "video": "https://www.youtube.com/results?search_query=remo+ergometro+tecnica+correta"}, {"name": "Mobilidade de quadril e posterior", "sets": 1, "reps": "4–5 min", "rest": 0, "rir": "—", "notes": "Final leve, sem forçar dor.", "video": "https://www.youtube.com/results?search_query=mobilidade+quadril+posterior+coxa"}]}, "sexta": {"label": "Sexta — Corpo inteiro C", "focus": "Ênfase em peito, costas e densidade", "duration": "38–40 min", "warmup": ["3 min de preparação específica e séries leves do primeiro par."], "exercises": [{"name": "Hack squat ou leg press", "sets": 2, "reps": "8–10", "rest": 90, "rir": "2", "notes": "Volume curto de pernas para manter frequência.", "video": "https://www.youtube.com/watch?v=waAxlYvtCcI"}, {"name": "Supino vertical articulado", "sets": 3, "reps": "8–10", "rest": 75, "rir": "1–2", "notes": "Alterne com a remada para ganhar tempo.", "video": "https://www.youtube.com/watch?v=QdwBcv8D9OE"}, {"name": "Remada articulada ou unilateral na máquina", "sets": 3, "reps": "8–10", "rest": 75, "rir": "1–2", "notes": "Sem girar o tronco.", "video": "https://www.youtube.com/results?search_query=remada+unilateral+maquina+execucao+correta"}, {"name": "Crossover na polia", "sets": 2, "reps": "12–15", "rest": 45, "rir": "1–2", "notes": "Amplitude confortável; não force o ombro.", "video": "https://www.youtube.com/results?search_query=crossover+polia+alta+execucao+correta"}, {"name": "Face pull", "sets": 2, "reps": "12–15", "rest": 45, "rir": "2", "notes": "Puxe em direção ao rosto; controle o retorno.", "video": "https://www.youtube.com/watch?v=kYMTJAx_dTM"}, {"name": "Barra fixa — prática técnica", "sets": 2, "reps": "submáximo", "rest": 90, "rir": "2", "notes": "Não falhar; objetivo é frequência e técnica.", "video": "https://www.youtube.com/results?search_query=barra+fixa+execucao+correta"}]}};
+const DEFAULT_STATE = {"profile": {"name": "Juarez Silva", "height_cm": 170, "weight_kg": 78.3, "waist_cm": 98, "chest_cm": 103, "pullups": 5, "plank_sec": 60, "bike_daily_km": 8.1, "goal": "Reduzir cintura e gordura abdominal, ganhar massa com prioridade em peito, costas e braços, aumentar barras, energia, força, mobilidade e capacidade atlética."}, "sessions": [{"id": "seed-2026-07-20", "date": "2026-07-20", "dayKey": "segunda", "status": "Concluído", "readiness": "Verde", "sleepHours": "", "sleepQuality": "", "energy": "", "pain": "0", "bodyWeight": "", "notes": "Sessão de retorno. O primeiro exercício foi registrado como “remada vertical”; confirmar depois o nome exato do aparelho.", "exercises": [{"name": "Remada vertical (confirmar aparelho)", "sets": [{"weight": "45 kg", "reps": "12", "rir": ""}, {"weight": "55 kg", "reps": "6", "rir": ""}]}, {"name": "Puxada frontal", "sets": [{"weight": "40 kg", "reps": "10", "rir": ""}, {"weight": "33 kg", "reps": "10", "rir": ""}, {"weight": "33 kg", "reps": "10", "rir": ""}]}, {"name": "Supino inclinado", "sets": [{"weight": "10 kg de cada lado", "reps": "10", "rir": ""}, {"weight": "14 kg de cada lado", "reps": "8", "rir": ""}, {"weight": "14 kg de cada lado", "reps": "10", "rir": ""}]}, {"name": "Puxada articulada", "sets": [{"weight": "20 kg de cada lado", "reps": "10", "rir": ""}, {"weight": "20 kg de cada lado", "reps": "8", "rir": ""}]}, {"name": "Tríceps", "sets": [{"weight": "10 kg", "reps": "12", "rir": ""}, {"weight": "12 kg", "reps": "12", "rir": ""}]}, {"name": "Rosca martelo", "sets": [{"weight": "15 kg", "reps": "12", "rir": ""}, {"weight": "15 kg", "reps": "10", "rir": ""}]}, {"name": "Prancha", "sets": [{"weight": "peso corporal", "reps": "40 s", "rir": ""}, {"weight": "peso corporal", "reps": "40 s", "rir": ""}]}]}, {"id": "seed-2026-07-21", "date": "2026-07-21", "dayKey": "terca", "status": "Não treinou", "readiness": "Vermelho", "sleepHours": "aprox. 6–7 na cama, sono não restaurador", "sleepQuality": "1", "energy": "2", "pain": "0", "bodyWeight": "", "notes": "Foi deitar cedo, mas colocou Aurora para dormir e ela deu trabalho. Depois das 23h não conseguiu pegar no sono direito. Acordou às 6h sem descanso, tentou dormir novamente e levantou por volta de 8h30 para trabalhar.", "exercises": []}]};
+const STORAGE_KEY = "treino_hibrido_juarez_v1";
+let state = loadState();
+const TIMER_STORAGE_KEY = "treino_hibrido_juarez_timers_v3";
+let restTimerInterval = null;
+let restEndAt = 0;
+let restTotalSeconds = 0;
+let restFinished = false;
+let workoutTicker = null;
+let workoutClock = {running:false, startedAt:0, elapsedMs:0};
+let audioContext = null;
+let alertsEnabled = false;
+let wakeLockSentinel = null;
+
+function deepClone(x) { return JSON.parse(JSON.stringify(x)); }
+function loadState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  return deepClone(DEFAULT_STATE);
+}
+function persist() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+function fmtDate(d) {
+  if (!d) return "";
+  const [y,m,day]=d.split("-");
+  return `${day}/${m}/${y}`;
+}
+function escapeHtml(s="") {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+document.querySelectorAll(".nav button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById(btn.dataset.tab).classList.add("active");
+    window.scrollTo({top:0,behavior:"smooth"});
+  });
+});
+
+function renderMetrics() {
+  const p = state.profile;
+  const items = [
+    ["Peso", `${p.weight_kg ?? "—"} kg`],
+    ["Cintura", `${p.waist_cm ?? "—"} cm`],
+    ["Peito", `${p.chest_cm ?? "—"} cm`],
+    ["Barra fixa", `${p.pullups ?? "—"} reps`],
+    ["Prancha", `${p.plank_sec ?? "—"} s`],
+    ["Altura", `${p.height_cm ?? "—"} cm`],
+    ["Bicicleta/dia", `${p.bike_daily_km ?? "—"} km`],
+    ["Sessões salvas", state.sessions.length]
+  ];
+  document.getElementById("metrics").innerHTML = items.map(([a,b])=>`<div class="metric"><span class="muted">${a}</span><b>${b}</b></div>`).join("");
+  document.getElementById("goalText").textContent = p.goal || "";
+}
+function showProfileEditor() {
+  const box=document.getElementById("profileEditor");
+  box.classList.toggle("hide");
+  if (!box.classList.contains("hide")) {
+    const p=state.profile;
+    box.innerHTML=`
+      <div class="form-grid">
+        <label>Peso (kg)<input id="pWeight" value="${p.weight_kg ?? ""}"></label>
+        <label>Cintura (cm)<input id="pWaist" value="${p.waist_cm ?? ""}"></label>
+        <label>Peito (cm)<input id="pChest" value="${p.chest_cm ?? ""}"></label>
+        <label>Barras<input id="pPullups" value="${p.pullups ?? ""}"></label>
+        <label>Prancha (s)<input id="pPlank" value="${p.plank_sec ?? ""}"></label>
+        <label>Bicicleta/dia (km)<input id="pBike" value="${p.bike_daily_km ?? ""}"></label>
+      </div>
+      <div class="actions"><button class="btn" onclick="saveProfile()">Salvar medidas</button></div>`;
+  }
+}
+function saveProfile() {
+  Object.assign(state.profile, {
+    weight_kg: document.getElementById("pWeight").value,
+    waist_cm: document.getElementById("pWaist").value,
+    chest_cm: document.getElementById("pChest").value,
+    pullups: document.getElementById("pPullups").value,
+    plank_sec: document.getElementById("pPlank").value,
+    bike_daily_km: document.getElementById("pBike").value
+  });
+  persist(); renderMetrics(); document.getElementById("profileEditor").classList.add("hide");
+}
+
+function renderPlan() {
+  const wrap = document.getElementById("workoutPlan");
+  wrap.innerHTML = Object.entries(WORKOUTS).map(([key,w])=>`
+    <div class="card day-card">
+      <div class="day-head">
+        <div><h3>${w.label}</h3><div class="muted">${w.focus} · ${w.duration}</div></div>
+        <button class="btn secondary" onclick="openLogger('${key}')">Registrar</button>
+      </div>
+      <div class="notice" style="margin-top:10px">${w.warmup.map(x=>`<div>• ${x}</div>`).join("")}</div>
+      ${w.exercises.map((e,i)=>`
+        <div class="exercise">
+          <div class="exercise-top">
+            <div>
+              <div class="exercise-title">${i+1}. ${e.name}</div>
+              <span class="pill">${e.sets} séries</span>
+              <span class="pill">${e.reps}</span>
+              <span class="pill">Descanso ${e.rest}s</span>
+              <span class="pill">RIR ${e.rir}</span>
+              <div class="muted small" style="margin-top:6px">${e.notes}</div>
+            </div>
+            <a class="video" href="${e.video}" target="_blank" rel="noopener">▶ Vídeo</a>
+          </div>
+        </div>`).join("")}
+    </div>`).join("");
+}
+
+function initLogger() {
+  const select=document.getElementById("sessionDay");
+  select.innerHTML=Object.entries(WORKOUTS).map(([k,w])=>`<option value="${k}">${w.label}</option>`).join("");
+  document.getElementById("sessionDate").value = new Date().toISOString().slice(0,10);
+  select.addEventListener("change", renderExerciseLogger);
+  document.getElementById("sessionStatus").addEventListener("change", renderExerciseLogger);
+  document.getElementById("sessionReadiness").addEventListener("change", e=>selectReadiness(e.target.value));
+  renderExerciseLogger();
+  selectReadiness("Verde");
+}
+function openLogger(dayKey) {
+  document.querySelector('[data-tab="registrar"]').click();
+  document.getElementById("sessionDay").value=dayKey;
+  renderExerciseLogger();
+}
+function selectReadiness(value) {
+  document.getElementById("sessionReadiness").value=value;
+  document.querySelectorAll(".ready-btn").forEach(b=>b.classList.toggle("selected",b.dataset.value===value));
+  const notes={
+    "Verde":"Treino completo. Mantenha o RIR planejado e a técnica.",
+    "Amarelo":"Faça 2 séries por exercício, deixe 3 repetições na reserva e retire o condicionamento final.",
+    "Vermelho":"Não faça treino pesado. Registre como não treinou, faça mobilidade leve ou apenas o deslocamento de bicicleta."
+  };
+  document.getElementById("readinessNote").textContent=notes[value];
+}
+function renderExerciseLogger() {
+  const key=document.getElementById("sessionDay").value || "segunda";
+  const status=document.getElementById("sessionStatus").value;
+  const wrap=document.getElementById("exerciseLogger");
+  if(status==="Não treinou") {
+    wrap.innerHTML='<div class="notice danger"><b>Dia sem treino:</b> registre sono, energia e o motivo nas observações. Não é necessário preencher exercícios.</div>';
+    return;
+  }
+  const w=WORKOUTS[key];
+  wrap.innerHTML=`<h3>${w.label}</h3>` + w.exercises.map((e,ei)=>`
+    <details open class="logger-exercise" data-name="${escapeHtml(e.name)}">
+      <summary>${e.name} — ${e.sets}×${e.reps} · descanso ${e.rest}s</summary>
+      <div class="muted small" style="margin:7px 0">${e.notes} <a href="${e.video}" target="_blank" rel="noopener">Ver execução</a></div>
+      <table class="set-table">
+        <thead><tr><th>Série</th><th>Carga</th><th>Reps/tempo</th><th>RIR</th><th>✓</th></tr></thead>
+        <tbody>
+          ${Array.from({length:e.sets},(_,si)=>`
+            <tr data-confirmed="false">
+              <td>${si+1}</td>
+              <td><input class="set-weight" placeholder="kg"></td>
+              <td><input class="set-reps" placeholder="${e.reps}"></td>
+              <td><input class="set-rir" placeholder="${e.rir}"></td>
+              <td><button class="set-check" aria-pressed="false" aria-label="Série ${si+1} de ${escapeHtml(e.name)} concluída" onclick="completeSet(this,${e.rest})" title="Concluir série e iniciar descanso">✓</button></td>
+            </tr>`).join("")}
+        </tbody>
+      </table>
+      <button class="btn secondary small" style="margin-top:8px" onclick="startTimer(${e.rest})">Iniciar descanso ${e.rest}s</button>
+    </details>`).join("");
+}
+function collectExercises() {
+  return Array.from(document.querySelectorAll(".logger-exercise")).map(el=>({
+    name:el.dataset.name,
+    sets:Array.from(el.querySelectorAll("tbody tr")).map(tr=>({
+      weight:tr.querySelector(".set-weight").value.trim(),
+      reps:tr.querySelector(".set-reps").value.trim(),
+      rir:tr.querySelector(".set-rir").value.trim()
+    })).filter(s=>s.weight||s.reps||s.rir)
+  })).filter(e=>e.sets.length);
+}
+function saveSession() {
+  const session={
+    id:"s-"+Date.now(),
+    date:document.getElementById("sessionDate").value,
+    dayKey:document.getElementById("sessionDay").value,
+    status:document.getElementById("sessionStatus").value,
+    readiness:document.getElementById("sessionReadiness").value,
+    sleepHours:document.getElementById("sleepHours").value.trim(),
+    sleepQuality:document.getElementById("sleepQuality").value,
+    energy:document.getElementById("energy").value,
+    pain:document.getElementById("pain").value,
+    bodyWeight:document.getElementById("bodyWeight").value.trim(),
+    durationSeconds:getWorkoutElapsedSeconds(),
+    notes:document.getElementById("sessionNotes").value.trim(),
+    exercises:collectExercises()
+  };
+  if(!session.date) return alert("Informe a data.");
+  if(workoutClock.running) pauseWorkoutTimer();
+  state.sessions.push(session);
+  if(session.bodyWeight) state.profile.weight_kg=session.bodyWeight;
+  persist(); renderMetrics(); renderHistory();
+  alert("Sessão salva.");
+  document.querySelector('[data-tab="historico"]').click();
+}
+function resetSessionForm() {
+  document.querySelectorAll("#registrar input,#registrar textarea").forEach(el=>{
+    if(el.id==="sessionDate") el.value=new Date().toISOString().slice(0,10);
+    else if(el.id==="pain") el.value="0";
+    else if(el.id==="workoutDurationField") el.value=formatClock(getWorkoutElapsedSeconds());
+    else el.value="";
+  });
+  document.getElementById("sessionStatus").value="Concluído";
+  selectReadiness("Verde");
+  renderExerciseLogger();
+}
+function renderHistory() {
+  const wrap=document.getElementById("history");
+  const sessions=[...state.sessions].sort((a,b)=>b.date.localeCompare(a.date));
+  if(!sessions.length){wrap.innerHTML='<p class="muted">Nenhuma sessão registrada.</p>';return;}
+  wrap.innerHTML=sessions.map(s=>{
+    const w=WORKOUTS[s.dayKey];
+    return `<div class="history-item">
+      <div class="history-head">
+        <div><b>${fmtDate(s.date)} — ${w?w.label:s.dayKey}</b><div class="muted small">${s.status} · ${s.readiness||"—"}</div></div>
+        <button class="btn danger small" onclick="deleteSession('${s.id}')">Excluir</button>
+      </div>
+      <div class="badges">
+        ${s.sleepHours?`<span class="badge">Sono: ${escapeHtml(s.sleepHours)}</span>`:""}
+        ${s.sleepQuality?`<span class="badge">Qualidade: ${escapeHtml(s.sleepQuality)}/5</span>`:""}
+        ${s.energy?`<span class="badge">Energia: ${escapeHtml(s.energy)}/5</span>`:""}
+        ${s.pain!==""?`<span class="badge">Dor: ${escapeHtml(s.pain)}/10</span>`:""}
+        ${s.durationSeconds?`<span class="badge">Treino: ${formatClock(s.durationSeconds)}</span>`:""}
+      </div>
+      ${s.exercises&&s.exercises.length?`<div style="margin-top:9px">${s.exercises.map(e=>`<div class="small"><b>${escapeHtml(e.name)}:</b> ${e.sets.map(x=>`${escapeHtml(x.weight||"—")} × ${escapeHtml(x.reps||"—")}${x.rir?` (RIR ${escapeHtml(x.rir)})`:""}`).join(" · ")}</div>`).join("")}</div>`:""}
+      ${s.notes?`<p class="muted small">${escapeHtml(s.notes)}</p>`:""}
+    </div>`;
+  }).join("");
+}
+function deleteSession(id) {
+  if(!confirm("Excluir este registro?"))return;
+  state.sessions=state.sessions.filter(s=>s.id!==id);
+  persist();renderHistory();renderMetrics();
+}
+
+function formatClock(totalSeconds) {
+  totalSeconds = Math.max(0, Math.floor(Number(totalSeconds) || 0));
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
+  return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+}
+function formatRest(totalSeconds) {
+  totalSeconds = Math.max(0, Math.ceil(totalSeconds));
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return `${m}:${String(s).padStart(2,"0")}`;
+}
+function saveTimerState() {
+  try { localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify({restEndAt,restTotalSeconds,restFinished,workoutClock})); } catch(e) {}
+}
+function loadTimerState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(TIMER_STORAGE_KEY) || "null");
+    if (saved) {
+      restEndAt=saved.restEndAt||0; restTotalSeconds=saved.restTotalSeconds||0; restFinished=!!saved.restFinished;
+      workoutClock=saved.workoutClock||workoutClock;
+    }
+  } catch(e) {}
+}
+function getWorkoutElapsedMs() {
+  return workoutClock.elapsedMs + (workoutClock.running ? Date.now()-workoutClock.startedAt : 0);
+}
+function getWorkoutElapsedSeconds() { return Math.round(getWorkoutElapsedMs()/1000); }
+function updateWorkoutDisplay() {
+  const seconds=Math.floor(getWorkoutElapsedMs()/1000);
+  document.getElementById("workoutTimerDisplay").textContent=formatClock(seconds);
+  const field=document.getElementById("workoutDurationField");
+  if(field) field.value=seconds?formatClock(seconds):"";
+}
+function startWorkoutTimer() {
+  ensureAudioContext();
+  if(workoutClock.running) return;
+  workoutClock.running=true; workoutClock.startedAt=Date.now(); saveTimerState(); updateWorkoutDisplay();
+  if(!workoutTicker) workoutTicker=setInterval(updateWorkoutDisplay,500);
+  setTimerStatus("Cronômetro total em andamento.");
+}
+function pauseWorkoutTimer() {
+  if(!workoutClock.running) return;
+  workoutClock.elapsedMs+=Date.now()-workoutClock.startedAt; workoutClock.running=false; workoutClock.startedAt=0;
+  saveTimerState(); updateWorkoutDisplay(); setTimerStatus("Cronômetro total pausado.");
+}
+function finishWorkoutTimer() {
+  pauseWorkoutTimer(); updateWorkoutDisplay();
+  setTimerStatus(`Treino finalizado em ${formatClock(getWorkoutElapsedSeconds())}.`);
+  if(navigator.vibrate && document.getElementById("vibrationEnabled")?.checked) navigator.vibrate([120,80,120]);
+}
+function resetWorkoutTimer() {
+  if(getWorkoutElapsedSeconds()>0 && !confirm("Zerar o cronômetro total do treino?")) return;
+  workoutClock={running:false,startedAt:0,elapsedMs:0}; saveTimerState(); updateWorkoutDisplay();
+  setTimerStatus("Cronômetro total zerado.");
+}
+function startTimer(seconds) {
+  ensureAudioContext();
+  restTotalSeconds=Number(seconds); restEndAt=Date.now()+restTotalSeconds*1000; restFinished=false;
+  saveTimerState(); updateRestTimer();
+  if(restTimerInterval) clearInterval(restTimerInterval);
+  restTimerInterval=setInterval(updateRestTimer,200);
+  setTimerStatus(`Descanso iniciado: ${seconds}s.`);
+}
+function addRestTime(seconds) {
+  if(!restEndAt || restFinished) return startTimer(seconds);
+  restEndAt+=Number(seconds)*1000; restTotalSeconds+=Number(seconds); saveTimerState(); updateRestTimer();
+}
+function updateRestTimer() {
+  if(!restEndAt) {
+    document.getElementById("timerDisplay").textContent=restFinished?"PRONTO!":"Pronto";
+    document.getElementById("restProgressBar").style.width=restFinished?"100%":"0%";
+    return;
+  }
+  const remainingMs=restEndAt-Date.now();
+  if(remainingMs<=0) { finishRestTimer(); return; }
+  const remainingSeconds=Math.ceil(remainingMs/1000);
+  document.getElementById("timerDisplay").textContent=formatRest(remainingSeconds);
+  const elapsed=restTotalSeconds-remainingMs/1000;
+  document.getElementById("restProgressBar").style.width=`${Math.max(0,Math.min(100,(elapsed/restTotalSeconds)*100))}%`;
+}
+function stopTimer(reset=true) {
+  if(restTimerInterval) clearInterval(restTimerInterval);
+  restTimerInterval=null; restEndAt=0; restTotalSeconds=0; restFinished=!reset; saveTimerState();
+  document.getElementById("timerDisplay").textContent=reset?"Pronto":"PRONTO!";
+  document.getElementById("restProgressBar").style.width=reset?"0%":"100%";
+  if(reset) setTimerStatus("Descanso cancelado.");
+}
+function finishRestTimer() {
+  if(restFinished) return;
+  if(restTimerInterval) clearInterval(restTimerInterval);
+  restTimerInterval=null; restEndAt=0; restFinished=true; saveTimerState();
+  document.getElementById("timerDisplay").textContent="PRONTO!";
+  document.getElementById("restProgressBar").style.width="100%";
+  playFinishAlert(); setTimerStatus("Descanso concluído. Próxima série.");
+}
+function completeSet(button,restSeconds) {
+  const row=button.closest("tr");
+  const confirmed=row.dataset.confirmed!=="true";
+  row.dataset.confirmed=String(confirmed);
+  row.classList.toggle("set-done",confirmed);
+  button.textContent=confirmed?"↺":"✓";
+  button.title=confirmed?"Desmarcar série":"Concluir série e iniciar descanso";
+  button.setAttribute("aria-pressed",String(confirmed));
+  if(confirmed && document.getElementById("autoRestEnabled")?.checked && Number(restSeconds)>0) startTimer(restSeconds);
+}
+function ensureAudioContext() {
+  try {
+    if(!audioContext) audioContext=new (window.AudioContext||window.webkitAudioContext)();
+    if(audioContext.state==="suspended") audioContext.resume();
+    return true;
+  } catch(e) { return false; }
+}
+function enableAlerts() {
+  const ok=ensureAudioContext(); alertsEnabled=ok;
+  const btn=document.getElementById("alertEnableBtn");
+  if(btn) btn.textContent=ok?"Alertas ativados ✓":"Som indisponível";
+  if(navigator.vibrate && document.getElementById("vibrationEnabled")?.checked) navigator.vibrate(80);
+  if(ok) playBeepSequence(true);
+  setTimerStatus(ok?"Som ativado. Faça o teste com os fones conectados.":"Este navegador não liberou o áudio.");
+}
+function playTone(at,frequency,duration,volume) {
+  if(!audioContext) return;
+  const osc=audioContext.createOscillator(), gain=audioContext.createGain();
+  osc.type="sine"; osc.frequency.setValueAtTime(frequency,at);
+  gain.gain.setValueAtTime(0.0001,at);
+  gain.gain.exponentialRampToValueAtTime(volume,at+0.015);
+  gain.gain.exponentialRampToValueAtTime(0.0001,at+duration);
+  osc.connect(gain); gain.connect(audioContext.destination); osc.start(at); osc.stop(at+duration+0.03);
+}
+function playBeepSequence(test=false) {
+  if(!ensureAudioContext()) return;
+  const volume=Number(document.getElementById("alertVolume")?.value||0.25);
+  const now=audioContext.currentTime+0.03;
+  playTone(now,880,0.16,volume); playTone(now+0.24,1046,0.16,volume); playTone(now+0.48,1318,test?0.24:0.42,volume);
+}
+function playFinishAlert() {
+  if(alertsEnabled||ensureAudioContext()) playBeepSequence(false);
+  if(navigator.vibrate && document.getElementById("vibrationEnabled")?.checked) navigator.vibrate([250,120,250,120,650]);
+}
+function testAlerts() {
+  alertsEnabled=ensureAudioContext(); playBeepSequence(true);
+  if(navigator.vibrate && document.getElementById("vibrationEnabled")?.checked) navigator.vibrate([160,90,280]);
+  setTimerStatus("Alerta de teste executado.");
+}
+function setTimerStatus(text) {
+  const el=document.getElementById("timerStatus"); if(el) el.textContent=text;
+}
+function toggleTimerPanel() {
+  const panel=document.getElementById("timerPanel"); panel.classList.toggle("collapsed");
+  document.getElementById("timerCollapseBtn").textContent=panel.classList.contains("collapsed")?"+":"−";
+}
+async function toggleWakeLock() {
+  const checkbox=document.getElementById("keepAwake");
+  if(!checkbox?.checked) {
+    if(wakeLockSentinel) { try { await wakeLockSentinel.release(); } catch(e) {} wakeLockSentinel=null; }
+    setTimerStatus("Tela pode apagar normalmente."); return;
+  }
+  if(!("wakeLock" in navigator)||!window.isSecureContext) {
+    checkbox.checked=false; setTimerStatus("Manter tela ligada funciona quando o app estiver publicado em HTTPS/PWA."); return;
+  }
+  try {
+    wakeLockSentinel=await navigator.wakeLock.request("screen");
+    wakeLockSentinel.addEventListener("release",()=>{wakeLockSentinel=null;});
+    setTimerStatus("Tela será mantida ligada durante o treino.");
+  } catch(e) { checkbox.checked=false; setTimerStatus("Não foi possível manter a tela ligada."); }
+}
+function initTimers() {
+  loadTimerState(); updateWorkoutDisplay();
+  if(workoutClock.running&&!workoutTicker) workoutTicker=setInterval(updateWorkoutDisplay,500);
+  if(restEndAt>Date.now()) { updateRestTimer(); restTimerInterval=setInterval(updateRestTimer,200); }
+  else if(restEndAt) finishRestTimer(); else updateRestTimer();
+  document.addEventListener("visibilitychange",async()=>{
+    updateWorkoutDisplay(); updateRestTimer();
+    if(document.visibilityState==="visible"&&document.getElementById("keepAwake")?.checked&&!wakeLockSentinel) await toggleWakeLock();
+  });
+}
+
+function markdownReport() {
+  const p=state.profile;
+  let md=`# Acompanhamento de treino — Juarez\n\n`;
+  md+=`## Perfil e medidas atuais\n\n`;
+  md+=`- Altura: ${p.height_cm} cm\n- Peso: ${p.weight_kg} kg\n- Cintura: ${p.waist_cm} cm\n- Peito: ${p.chest_cm} cm\n- Barra fixa: ${p.pullups} repetições\n- Prancha: ${p.plank_sec} segundos\n- Bicicleta: ${p.bike_daily_km} km/dia\n\n`;
+  md+=`**Objetivo:** ${p.goal}\n\n`;
+  md+=`## Plano semanal\n\n`;
+  Object.entries(WORKOUTS).forEach(([k,w])=>{
+    md+=`### ${w.label} — ${w.focus}\n\n`;
+    w.exercises.forEach((e,i)=>{
+      md+=`${i+1}. **${e.name}** — ${e.sets}×${e.reps}, descanso ${e.rest}s, RIR ${e.rir}. ${e.notes}\n`;
+    });
+    md+="\n";
+  });
+  md+=`## Histórico\n\n`;
+  [...state.sessions].sort((a,b)=>a.date.localeCompare(b.date)).forEach(s=>{
+    const w=WORKOUTS[s.dayKey];
+    md+=`### ${fmtDate(s.date)} — ${w?w.label:s.dayKey}\n\n`;
+    md+=`- Status: ${s.status}\n- Semáforo: ${s.readiness||"—"}\n- Sono: ${s.sleepHours||"—"}\n- Qualidade do sono: ${s.sleepQuality||"—"}/5\n- Energia: ${s.energy||"—"}/5\n- Dor: ${s.pain||"0"}/10\n- Duração do treino: ${s.durationSeconds?formatClock(s.durationSeconds):"—"}\n`;
+    (s.exercises||[]).forEach(e=>{
+      md+=`- **${e.name}:** ${e.sets.map(x=>`${x.weight||"—"} × ${x.reps||"—"}${x.rir?` (RIR ${x.rir})`:""}`).join(" | ")}\n`;
+    });
+    if(s.notes)md+=`- Observações: ${s.notes}\n`;
+    md+="\n";
+  });
+  return md;
+}
+function downloadBlob(content, filename, type) {
+  const blob=new Blob([content],{type});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download=filename;a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function exportMarkdown() {
+  downloadBlob(markdownReport(),`acompanhamento_treino_juarez_${new Date().toISOString().slice(0,10)}.md`,"text/markdown;charset=utf-8");
+}
+function exportHtmlReport() {
+  const p=state.profile;
+  const hist=[...state.sessions].sort((a,b)=>b.date.localeCompare(a.date));
+  const rows=hist.map(s=>{
+    const w=WORKOUTS[s.dayKey];
+    const ex=(s.exercises||[]).map(e=>`<li><b>${escapeHtml(e.name)}:</b> ${e.sets.map(x=>`${escapeHtml(x.weight||"—")} × ${escapeHtml(x.reps||"—")}${x.rir?` (RIR ${escapeHtml(x.rir)})`:""}`).join(" · ")}</li>`).join("");
+    return `<article><h3>${fmtDate(s.date)} — ${escapeHtml(w?w.label:s.dayKey)}</h3><p>${escapeHtml(s.status)} · ${escapeHtml(s.readiness||"—")} · Sono ${escapeHtml(s.sleepHours||"—")} · Energia ${escapeHtml(s.energy||"—")}/5 · Dor ${escapeHtml(s.pain||"0")}/10 · Treino ${s.durationSeconds?formatClock(s.durationSeconds):"—"}</p><ul>${ex}</ul>${s.notes?`<p><i>${escapeHtml(s.notes)}</i></p>`:""}</article>`;
+  }).join("");
+  const report=`<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Relatório treino Juarez</title><style>body{max-width:900px;margin:30px auto;padding:0 18px;font-family:Arial,sans-serif;line-height:1.5;color:#18232e}header{background:#eaf6ef;padding:20px;border-radius:16px}article{border-top:1px solid #ccd6dc;padding:14px 0}.metrics{display:flex;gap:10px;flex-wrap:wrap}.metrics span{background:#f1f5f7;padding:7px 10px;border-radius:999px}</style><header><h1>Acompanhamento de treino — Juarez</h1><div class="metrics"><span>Peso: ${escapeHtml(p.weight_kg)} kg</span><span>Cintura: ${escapeHtml(p.waist_cm)} cm</span><span>Peito: ${escapeHtml(p.chest_cm)} cm</span><span>Barras: ${escapeHtml(p.pullups)}</span></div><p>${escapeHtml(p.goal)}</p></header><main>${rows}</main></html>`;
+  downloadBlob(report,`relatorio_treino_juarez_${new Date().toISOString().slice(0,10)}.html`,"text/html;charset=utf-8");
+}
+
+async function shareMarkdown() {
+  const content = markdownReport();
+  const filename = `acompanhamento_treino_juarez_${new Date().toISOString().slice(0,10)}.md`;
+  const file = new File([content], filename, {type:"text/markdown;charset=utf-8"});
+  try {
+    if (navigator.canShare && navigator.canShare({files:[file]})) {
+      await navigator.share({
+        title:"Acompanhamento de treino — Juarez",
+        text:"Segue meu acompanhamento de treino para análise.",
+        files:[file]
+      });
+      return;
+    }
+  } catch (e) {
+    if (e && e.name === "AbortError") return;
+  }
+  downloadBlob(content, filename, "text/markdown;charset=utf-8");
+  alert("O compartilhamento direto não está disponível neste navegador. O arquivo .md foi baixado; anexe-o no ChatGPT pelo botão +.");
+}
+
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+  });
+}
+
+function clearAllData() {
+  if(!confirm("Isso apagará todos os registros locais e restaurará apenas os dados iniciais. Continuar?"))return;
+  state=deepClone(DEFAULT_STATE);persist();renderAll();alert("Dados restaurados.");
+}
+function renderAll() {
+  renderMetrics();renderPlan();renderHistory();renderExerciseLogger();
+}
+renderMetrics();
+renderPlan();
+initLogger();
+renderHistory();
+initTimers();
+</script>
+</body>
+</html>
