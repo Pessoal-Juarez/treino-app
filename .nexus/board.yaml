@@ -1,0 +1,33 @@
+version: 1
+columns: [backlog, planning, specs, dev, tests, review, done]
+items:
+  - key: epic-1
+    title: Train with trustworthy workout memory
+    column: tests
+    origin: full
+    feature: quero-uma-revisao-na-ui-e-ux-do-app-e-ta
+    labels: [feature, workout-memory]
+    specs: [1-1-confirm-and-undo-performed-sets, 1-2-find-the-real-last-execution, 1-3-prefill-editable-last-execution-values, 1-4-show-progression-guidance-without-inventing-numbers, 1-5-remind-me-to-export-fragile-local-history, 1-6-validate-a-full-week-of-trustworthy-workout-memory, 1-7-save-only-confirmed-sets]
+    agent: qa
+  - key: epic-2
+    title: Train with focus without losing progress
+    column: done
+    origin: full
+    blockedBy: [epic-1]
+    feature: quero-uma-revisao-na-ui-e-ux-do-app-e-ta
+    workflow: build
+    auto: true
+    labels: [feature, focused-workout]
+    specs: [2-1-recover-an-interrupted-workout, 2-2-navigate-one-exercise-at-a-time, 2-3-advance-safely-while-rest-stays-visible, 2-4-finish-without-hiding-pending-work, 2-5-validate-a-full-week-without-losing-progress]
+    agent: dev
+  - key: epic-3
+    title: Use a clearer app without losing capabilities
+    column: dev
+    origin: full
+    blockedBy: [epic-2]
+    feature: quero-uma-revisao-na-ui-e-ux-do-app-e-ta
+    workflow: build
+    auto: true
+    labels: [feature, gym-console]
+    specs: [3-1-understand-the-day-and-plan-quickly, 3-2-register-with-focus-using-one-hand, 3-3-review-and-protect-history-clearly]
+    agent: dev

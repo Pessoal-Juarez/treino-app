@@ -1,0 +1,2 @@
+{"type":"nexus","subtype":"containment","engine":"codex","contained":"sandbox:workspace-write","column":null}
+{"type":"result","subtype":"error","is_error":true,"result":"The engine stopped without saying the turn was over, so the work is unfinished."}

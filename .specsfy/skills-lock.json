@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "skills": {
+    "specsfy-setup": {
+      "source": "base",
+      "installed_at": "2026-08-20T19:36:09.861Z",
+      "content_sha256": "ba14632392e399091c31b6536e80c25009434f80b6a5cc43fcce3b716736a02e"
+    },
+    "specsfy-aux-stack": {
+      "source": "base",
+      "installed_at": "2026-08-20T19:36:09.867Z",
+      "content_sha256": "2e084c2f8d1ee0140876d8483894ff2348479205beb8eb969ce7d55f81dce4a1"
+    },
+    "specsfy-aux-rules": {
+      "source": "base",
+      "installed_at": "2026-08-20T19:36:09.873Z",
+      "content_sha256": "dae518828a92a1c1494cad7a066cefdcf257605c87ba30c877734041d00bf661"
+    },
+    "specsfy-aux-database": {
+      "source": "base",
+      "installed_at": "2026-08-20T19:36:09.878Z",
+      "content_sha256": "debe224bf83363833898263dbb7e930c608f2cbf061b1cb1423c8b22cdc9b836"
+    },
+    "specsfy-documentator": {
+      "source": "base",
+      "installed_at": "2026-08-20T19:36:09.885Z",
+      "content_sha256": "34ad6819b2a68e1484e74f0308cc6528d372a031b257c38dedd419e15b03a360"
+    },
+    "specsfy-01-inbox": {
+      "source": "base",
+      "installed_at": "2026-08-20T19:36:09.892Z",
+      "content_sha256": "adb758bf8ede083e186ad9131eec3fe77ee44429e0d946ac7b834183924e2f64"
+    },
+    "specsfy-02-backlog": {
+      "source": "base",
+      "installed_at": "2026-08-20T19:36:09.901Z",
+      "content_sha256": "57e6ec06e94e6aee18f002ff5a555c445669a13fb948499193820bad30d62784"
+    },
+    "specsfy-03-specify": {
+      "source": "base",
+      "installed_at": "2026-08-20T19:36:09.911Z",
+      "content_sha256": "1d1dd7b6a09b9b257ceab2dc23bf91bbd14f580cdfec0f3e293febdc2a71e18c"
+    },
+    "specsfy-04-validate": {
+      "source": "base",
+      "installed_at": "2026-08-20T19:36:09.924Z",
+      "content_sha256": "9822be215d5b20c5dd147b2282fc5d3b107b1b091b9ce6719a9171ed05556271"
+    },
+    "specsfy-05-tasks": {
+      "source": "base",
+      "installed_at": "2026-08-20T19:36:09.932Z",
+      "content_sha256": "620250380d8f997131a7c4e56598776dba372f8635dc95e15e4dbaf018f5dce0"
+    },
+    "specsfy-06-tdd-bdd": {
+      "source": "base",
+      "installed_at": "2026-08-20T19:36:09.942Z",
+      "content_sha256": "e6c453ee5ee34c3bb2f2a548b1a329bf96aab95d893d11bb05f104d87b62469d"
+    },
+    "specsfy-07-implement": {
+      "source": "base",
+      "installed_at": "2026-08-20T19:36:09.955Z",
+      "content_sha256": "a6c7f5c0ec14e3dc67010895b38d975a7bdfa2e0ba7ea9dfc41cf059d03429b4"
+    },
+    "specsfy-update-spec": {
+      "source": "base",
+      "installed_at": "2026-08-20T19:36:09.965Z",
+      "content_sha256": "ede66ef4de46b345e1700dc8656c61746855312f2b22bd9c7032462c5fdeaad9"
+    },
+    "specsfy-progress": {
+      "source": "base",
+      "installed_at": "2026-08-20T19:36:09.972Z",
+      "content_sha256": "e9a95a99d4746de65373e4aefc34c14c84c549cb84362d512b5c352c3c33925c"
+    },
+    "specsfy-interviewer": {
+      "source": "base",
+      "installed_at": "2026-08-20T19:36:09.977Z",
+      "content_sha256": "cc08b96795bef7f00b99a7ec5fdae7ced1f369eccf41f699c0bb48cadd4ceb4c"
+    },
+    "specsfy-mvp-milestone-interviewer": {
+      "source": "base",
+      "installed_at": "2026-08-20T19:36:09.984Z",
+      "content_sha256": "c24b11c8b151920787b93046d4ee2f98e7d2aff265ae8c1c5a717bd394d1c300"
+    },
+    "specsfy-roadmap-milestone-interviewer": {
+      "source": "base",
+      "installed_at": "2026-08-20T19:36:09.988Z",
+      "content_sha256": "c8f5aaecc44eefe853246a9d222c0ca770b3724c6c0a28391c8f194e84d1623e"
+    },
+    "specsfy-milestone-governor": {
+      "source": "base",
+      "installed_at": "2026-08-20T19:36:09.994Z",
+      "content_sha256": "57125d6bbb8ece393bd5e737137330bfc43babda047c66067b701a072d9e2558"
+    }
+  },
+  "framework": {
+    "source": "base",
+    "spec_sha256": "463463ebcdae7080556aae43c4f48eea43e4ecf5f96e94f8b8299d814f76e25a",
+    "template_sha256": "46ab10cdb92e0819d409b83c10ffe4d3f350d9da798021997a68996ab91c9135",
+    "templates_sha256": {
+      "Inbox.md": "6dabcd3a931275187d77af0ff53e08449e1fbf8dd32410eb4fc7f79ed52a7757",
+      "Backlog.md": "444bca33b2fc604ce46f01c223b9735019a203e7bac665a0029dabfb65c3a4b9",
+      "Spec.md": "46ab10cdb92e0819d409b83c10ffe4d3f350d9da798021997a68996ab91c9135",
+      "Tasks.md": "bd6cfd726fda3a77f8e0a741540e190284f8580f7b1fde79857f95827dff4b07",
+      "Project.md": "f8c44685086d42244566e958b446cb0fccdb339d1077a88fb1a8dc00dd668317",
+      "Stack.md": "fefb0e2ce4b13fec11e065c1e603face7a08f312131c461217b513bc0b82b09b",
+      "Rules.md": "c5564ba5084c9870d8c0bea803cdb700d684d2a62a25821171ddd386584bd57d",
+      "Database.md": "302f07299e98f32c82cf258376a6bd15b04c50ae2d36f360c1f20f839b3d855c"
+    },
+    "example_sha256": "af8deb04e39a7ebb5c83121a418733512225d742dc33809cca97854e5caec9d2",
+    "agents_sha256": "759011716957b8f168237815184c3bccc285031da3ec814b4aaa898346727cbc",
+    "claude_sha256": "ddd02f4166dbe49fce5e0444bd0ab9fac8dabbf47fd9d38c1539a56efc8bec28"
+  }
+}
