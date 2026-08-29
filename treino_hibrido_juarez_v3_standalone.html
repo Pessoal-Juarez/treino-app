@@ -930,7 +930,11 @@ a { color: var(--neon); text-decoration: none; }
     <a class="exercise-video-link" id="runnerVideoLink" href="#" target="_blank" rel="noopener">
       <span>▶ Ver Execução Correta</span>
     </a>
-
+    <section class="integrated-timer-card" data-isometric-timer style="display:none;border-color:rgba(212,255,50,.32)">
+      <div class="timer-state-label">Tempo da série</div>
+      <div class="timer-big-display" data-isometric-display>00:45</div>
+      <div class="timer-quick-actions"><button class="btn-timer-ctrl" data-isometric-adjust type="button" style="min-height:44px">Ajustar · 45 s</button><button class="btn-timer-ctrl primary" data-isometric-play type="button" style="min-height:44px">▶ Iniciar série</button></div>
+    </section>
     <div class="last-performance-badge" data-equipment-summary style="display:block;background:var(--panel);border-color:var(--line);border-style:solid;border-width:1px;border-radius:16px">
       <div class="badge-content" style="width:100%">
         <div class="badge-title">
@@ -1062,7 +1066,7 @@ const WORKOUTS = {
       {"id": "ex-rem-artic", "name": "Remada articulada com apoio no peito", "sets": 2, "reps": "8–10", "rest": 75, "rir": "2", "notes": "Cotovelos guiam o movimento; não tire o peito do apoio.", "video": "https://www.youtube.com/results?search_query=remada+articulada+apoio+no+peito+execucao+correta"},
       {"id": "ex-tri-corda", "name": "Tríceps na corda", "sets": 2, "reps": "10–12", "rest": 45, "rir": "1–2", "notes": "Pode alternar com rosca martelo.", "video": "https://www.youtube.com/results?search_query=triceps+corda+execucao+correta"},
       {"id": "ex-rosca-mart", "name": "Rosca martelo", "sets": 2, "reps": "10–12", "rest": 60, "rir": "1–2", "notes": "Sem balançar o tronco; descida controlada.", "video": "https://www.youtube.com/watch?v=J_I6MVH2v4E"},
-      {"id": "ex-prancha", "name": "Prancha nos antebraços", "sets": 2, "reps": "40–60 s", "rest": 30, "rir": "—", "notes": "Glúteos e abdômen contraídos; sem afundar a lombar.", "video": "https://www.youtube.com/watch?v=Yu0wjtD5FkU"}
+      {"id": "ex-prancha", "name": "Prancha nos antebraços", "sets": 2, "reps": "40–60 s", "rest": 30, "isometric": true, "rir": "—", "notes": "Glúteos e abdômen contraídos; sem afundar a lombar.", "video": "https://www.youtube.com/watch?v=Yu0wjtD5FkU"}
     ]
   },
   "terca": {
@@ -2393,6 +2397,8 @@ let state = loadState();
 let activeWorkout = null; 
 // { dayKey, startTime, elapsedSeconds, currentIndex, exerciseData: [ { id, name, skipped: bool, sets: [{ weight, reps, done }] } ] }
 let runnerTimerInterval = null;
+let isometricTimerInterval = null;
+let isometricRemaining = 45;
 let runnerRestEnd = 0;
 let runnerRestTotal = 0;
 let runnerRestRunning = false;
@@ -2587,6 +2593,7 @@ function startWorkoutByKey(dayKey) {
         rir: ex.rir,
         notes: ex.notes,
         video: ex.video,
+        isometric: Boolean(ex.isometric),
         skipped: false,
         lastRecord: lastRec,
         sets: Array.from({ length: ex.sets }, (_, i) => {
@@ -2624,6 +2631,8 @@ function renderRunnerExercise(index) {
   
   activeWorkout.currentIndex = index;
   const ex = activeWorkout.exerciseData[index];
+  if (isometricTimerInterval) clearInterval(isometricTimerInterval);
+  isometricTimerInterval = null;
   const total = activeWorkout.exerciseData.length;
 
   // Header and progress
@@ -2642,6 +2651,40 @@ function renderRunnerExercise(index) {
   // Video Link
   const videoBtn = document.getElementById("runnerVideoLink");
   videoBtn.href = ex.video;
+  const isometricCard = document.querySelector("[data-isometric-timer]");
+  isometricCard.style.display = ex.isometric ? "flex" : "none";
+  if (ex.isometric) {
+    isometricRemaining = 45;
+    const display = isometricCard.querySelector("[data-isometric-display]");
+    const paint = () => {
+      display.textContent = `00:${String(isometricRemaining).padStart(2, "0")}`;
+    };
+    paint();
+    isometricCard.querySelector("[data-isometric-adjust]").onclick = () => {
+      isometricRemaining += 5;
+      paint();
+    };
+    isometricCard.querySelector("[data-isometric-play]").onclick = (event) => {
+      if (isometricTimerInterval) {
+        clearInterval(isometricTimerInterval);
+        isometricTimerInterval = null;
+        event.currentTarget.textContent = "▶ Iniciar série";
+        return;
+      }
+      event.currentTarget.textContent = "❚❚ Pausar série";
+      isometricTimerInterval = setInterval(() => {
+        if (isometricRemaining > 0) {
+          isometricRemaining -= 1;
+          paint();
+        }
+        if (isometricRemaining === 0) {
+          clearInterval(isometricTimerInterval);
+          isometricTimerInterval = null;
+          event.currentTarget.textContent = "▶ Iniciar série";
+        }
+      }, 1000);
+    };
+  }
   renderEquipmentSummary(ex);
 
   // Last session record badge
