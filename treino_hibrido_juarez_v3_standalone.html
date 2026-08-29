@@ -2172,14 +2172,25 @@ function updateKeepAwakePreference(enabled) {
   return toggleWakeLock(state.keepAwakeEnabled);
 }
 
+function clearWakeLockSentinel(sentinel) {
+  if (wakeLockSentinel === sentinel) wakeLockSentinel = null;
+}
+
 async function toggleWakeLock(enabled) {
   if (!enabled) {
-    if (wakeLockSentinel) { try { await wakeLockSentinel.release(); } catch(e){} wakeLockSentinel = null; }
+    const sentinel = wakeLockSentinel;
+    wakeLockSentinel = null;
+    if (sentinel) { try { await sentinel.release(); } catch(e){} }
     return;
   }
+  if (wakeLockSentinel && !wakeLockSentinel.released) return;
   try {
     if ('wakeLock' in navigator) {
-      wakeLockSentinel = await navigator.wakeLock.request('screen');
+      const sentinel = await navigator.wakeLock.request('screen');
+      wakeLockSentinel = sentinel;
+      if (sentinel && typeof sentinel.addEventListener === 'function') {
+        sentinel.addEventListener('release', () => clearWakeLockSentinel(sentinel), { once: true });
+      }
     }
   } catch(e) {}
 }
@@ -2257,7 +2268,7 @@ function editProfileModal() {
 }
 
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && activeWorkout && getKeepAwakePreference() && !wakeLockSentinel) {
+  if (document.visibilityState === 'visible' && activeWorkout && getKeepAwakePreference() && (!wakeLockSentinel || wakeLockSentinel.released)) {
     toggleWakeLock(true);
   }
 });
@@ -2626,4 +2637,3 @@ initOnboardingIntroduction();
 </script>
 </body>
 </html>
-

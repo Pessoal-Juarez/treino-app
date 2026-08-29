@@ -3,7 +3,7 @@
 <!-- specsfy:documentator:start -->
 ## Resumo
 
-- Arquivos de teste: 21.
+- Arquivos de teste: 22.
 - Runner: Vitest.
 - Scripts: test:tdd: vitest run.
 
@@ -12,6 +12,7 @@
 | tests\alarm-preferences.test.js |
 | tests\equipment-configuration.test.js |
 | tests\first-use-feedback.test.js |
+| tests\html-byte-parity.test.js |
 | tests\isometric-timer.test.js |
 | tests\keep-awake-preference.test.js |
 | tests\kg-suffix.test.js |

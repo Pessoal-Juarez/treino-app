@@ -335,7 +335,7 @@ tests/service-worker-offline.test.js
   - [x] **PREP**: RED T003 confirmado.
   - [x] **EXECUTE**: início, saída e visibilidade controlam sentinela.
   - [x] **VERIFY**: GREEN 2/2.
-  - [x] **EVIDENCE**: focal exit 0.
+  - [x] **EVIDENCE**: focal exit 0; revisão independente 2: RED 2/2 em 2026-08-29 — uma sentinela do agente do usuário com `released=true` e evento `release` não limpava a referência, impedindo nova solicitação em `visibilitychange`. GREEN: listener de `release` limpa por identidade, visibilidade também reconhece `released`, focal 9/9 e regressão de produto 165/165 (Partitura fora deste terminal).
   - [x] **IMPROVE**: falha segura preservada.
   <!-- specsfy:evidence {"task":"T007","refs":["US-001","FR-001","NFR-001","AC-003"],"files":["index.html","treino_hibrido_juarez_v3_standalone.html","tests/keep-awake-preference.test.js"],"commands":[{"run":"npm run test:tdd -- tests/keep-awake-preference.test.js -t restores Wake Lock --reporter=dot --testTimeout=5000","exit":0}]} -->
 - [x] T008 [CODE] [US-001] Precachear PDF.js em `sw.js` — Refs: US-001, FR-001, NFR-001, AC-004 — Depends: T001, T002, T003, T004

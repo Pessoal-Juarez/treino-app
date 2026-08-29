@@ -13,6 +13,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/alarm-preferences.test.js | render, AudioContextUnavailable |
 | Testes | tests/equipment-configuration.test.js | renderWorkout, editor, setPair, save |
 | Testes | tests/first-use-feedback.test.js | STORAGE_KEY, openApp |
+| Testes | tests/html-byte-parity.test.js | — |
 | Testes | tests/isometric-timer.test.js | runner |
 | Testes | tests/keep-awake-preference.test.js | STORAGE_KEY, waitFor, openApp, changeCheckbox, storedPreference, seedProtectedState, toggleWakeLock |
 | Testes | tests/kg-suffix.test.js | — |

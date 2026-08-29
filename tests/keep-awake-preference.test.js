@@ -105,20 +105,38 @@ for (const file of variants) {
     let requests = 0; let releases = 0;
     const savedState = JSON.stringify({ onboardingSeen: true, onboardingConfigured: true, keepAwakeEnabled: true, profile: {}, sessions: [] });
     const dom = await openApp(file, { savedState, beforeParse(window) {
+      const sentinels = [];
       Object.defineProperty(window.navigator, 'wakeLock', { configurable: true, value: { request: async (type) => {
-        requests += 1; expect(type).toBe('screen'); return { release: async () => { releases += 1; } };
+        requests += 1;
+        expect(type).toBe('screen');
+        const sentinel = new window.EventTarget();
+        sentinel.released = false;
+        sentinel.release = async () => {
+          releases += 1;
+          sentinel.released = true;
+          sentinel.dispatchEvent(new window.Event('release'));
+        };
+        sentinels.push(sentinel);
+        return sentinel;
       } } });
+      window.__wakeLockSentinels = sentinels;
     } });
     const { document, localStorage } = dom.window;
     localStorage.setItem(`${STORAGE_KEY}_imported_workouts`, JSON.stringify([{ id: 'import-teste', label: 'Teste', exercises: [{ id: 'x', name: 'Agachamento', sets: 1, reps: '8', rest: 60, rir: '—', notes: '', video: '#' }] }]));
     dom.window.startWorkoutByKey('import-teste');
     await waitFor(() => requests === 1 && dom.window.eval('wakeLockSentinel !== null'), 'Wake Lock request at workout start');
-    await dom.window.toggleWakeLock(false); expect(releases).toBe(1);
-    dom.window.eval('wakeLockSentinel = null');
+    const releasedByUserAgent = dom.window.__wakeLockSentinels[0];
+    releasedByUserAgent.released = true;
+    releasedByUserAgent.dispatchEvent(new dom.window.Event('release'));
+    await waitFor(() => dom.window.eval('wakeLockSentinel === null'), 'Wake Lock release event clears its reference');
     Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' });
     document.dispatchEvent(new dom.window.Event('visibilitychange'));
-    await waitFor(() => requests === 2, 'Wake Lock reacquisition for active runner');
-    dom.window.eval('activeWorkout = null; wakeLockSentinel = null');
+    await waitFor(
+      () => requests === 2 && dom.window.eval('wakeLockSentinel === window.__wakeLockSentinels[1]'),
+      'Wake Lock reacquisition for active runner',
+    );
+    await dom.window.toggleWakeLock(false); expect(releases).toBe(1);
+    dom.window.eval('activeWorkout = null');
     document.dispatchEvent(new dom.window.Event('visibilitychange'));
     await new Promise(resolve => setTimeout(resolve, 10)); expect(requests).toBe(2);
     dom.window.close();
