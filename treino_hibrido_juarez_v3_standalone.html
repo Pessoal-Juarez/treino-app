@@ -852,6 +852,12 @@ a { color: var(--neon); text-decoration: none; }
           <button class="btn-timer-ctrl" style="padding:12px;" onclick="exportHtmlReport()">📄 Baixar Relatório .html</button>
         </div>
       </div>
+      <div class="card-section">
+        <h3>Importar novo treino</h3><p style="font-size:.86rem;color:var(--muted)">TXT ou texto colado, processado só neste dispositivo.</p>
+        <button class="btn-timer-ctrl" data-workout-import onclick="openWorkoutImport()" style="width:100%;min-height:44px">Importar novo treino</button>
+      </div>
+
+
       
       <div class="card-section">
         <h3>Configurações de Alerta</h3>
@@ -2572,7 +2578,7 @@ function startTodayWorkout() {
 }
 
 function startWorkoutByKey(dayKey) {
-  const w = WORKOUTS[dayKey];
+  const w = getAvailableWorkouts()[dayKey];
   if (!w) return;
   
   ensureAudioContext();
@@ -3074,25 +3080,41 @@ function setQuickReadiness(val) {
 /* RENDER FULL PLAN SECTION */
 function renderFullPlan() {
   const container = document.getElementById("fullPlanContainer");
-  container.innerHTML = Object.entries(WORKOUTS).map(([k, w]) => `
-    <div class="card-section">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
-        <div>
-          <h3 style="margin:0;">${w.label}</h3>
-          <span style="font-size:0.8rem;color:var(--muted);">${w.focus} · ${w.duration}</span>
-        </div>
-        <button class="btn-timer-ctrl primary" onclick="startWorkoutByKey('${k}')">Iniciar Treino</button>
-      </div>
-      <div style="font-size:0.84rem;color:var(--text);margin-bottom:8px;">
-        ${w.exercises.map((e, idx) => `
-          <div style="padding:6px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;">
-            <span>${idx + 1}. ${e.name}</span>
-            <span style="color:var(--muted);">${e.sets}×${e.reps}</span>
-          </div>
-        `).join("")}
-      </div>
-    </div>
-  `).join("");
+  container.replaceChildren();
+  Object.entries(getAvailableWorkouts()).forEach(([key, workout]) => {
+    const card = document.createElement("div");
+    card.className = "card-section";
+    const header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;";
+    const details = document.createElement("div");
+    const title = document.createElement("h3");
+    title.style.margin = "0";
+    title.textContent = workout.label;
+    const meta = document.createElement("span");
+    meta.style.cssText = "font-size:0.8rem;color:var(--muted);";
+    meta.textContent = `${workout.focus} · ${workout.duration}`;
+    details.append(title, meta);
+    const start = document.createElement("button");
+    start.className = "btn-timer-ctrl primary";
+    start.textContent = "Iniciar Treino";
+    start.addEventListener("click", () => startWorkoutByKey(key));
+    header.append(details, start);
+    const exercises = document.createElement("div");
+    exercises.style.cssText = "font-size:0.84rem;color:var(--text);margin-bottom:8px;";
+    (Array.isArray(workout.exercises) ? workout.exercises : []).forEach((exercise, index) => {
+      const row = document.createElement("div");
+      row.style.cssText = "padding:6px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;";
+      const name = document.createElement("span");
+      name.textContent = `${index + 1}. ${exercise.name}`;
+      const target = document.createElement("span");
+      target.style.color = "var(--muted)";
+      target.textContent = `${exercise.sets}×${exercise.reps}`;
+      row.append(name, target);
+      exercises.append(row);
+    });
+    card.append(header, exercises);
+    container.append(card);
+  });
 }
 
 /* RENDER HISTORY SECTION */
@@ -3107,7 +3129,7 @@ function renderHistory() {
   }
 
   container.innerHTML = sessions.map(s => {
-    const w = WORKOUTS[s.dayKey];
+    const w = getAvailableWorkouts()[s.dayKey];
     const m = Math.floor((s.durationSeconds || 0) / 60);
     return `
       <div class="history-card-item">
@@ -3163,7 +3185,7 @@ function generateMarkdownContent() {
   md += `## Perfil\n- Peso: ${p.weight_kg} kg\n- Cintura: ${p.waist_cm} cm\n- Peito: ${p.chest_cm} cm\n- Barras: ${p.pullups}\n- Objetivo: ${p.goal}\n\n`;
   md += `## Histórico de Treinos\n\n`;
   [...state.sessions].sort((a,b) => a.date.localeCompare(b.date)).forEach(s => {
-    const w = WORKOUTS[s.dayKey];
+    const w = getAvailableWorkouts()[s.dayKey];
     md += `### ${s.date} — ${w ? w.label : s.dayKey}\n`;
     md += `- Status: ${s.status} | Prontidão: ${s.readiness || "—"} | Duração: ${Math.floor((s.durationSeconds||0)/60)} min\n`;
     if (s.exercises) {
@@ -3338,6 +3360,18 @@ function renderProfileSummary() {
   }
 }
 
+const IMPORTED_WORKOUTS_KEY = 'treino_hibrido_juarez_v5_imported_workouts';
+function openWorkoutImport() {
+  const modal=document.createElement('div'); modal.dataset.workoutImport='true'; modal.style.cssText='position:fixed;inset:0;z-index:1000;padding:16px;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center';
+  const card=document.createElement('div'); card.dataset.importDialog='true'; card.style.cssText='box-sizing:border-box;width:min(100%,360px);padding:20px;border-radius:16px;background:var(--panel);border:1px solid var(--line);display:grid;gap:10px';
+  const text=document.createElement('textarea'); text.dataset.importText='true'; text.style.cssText='box-sizing:border-box;width:100%;max-width:100%;font-size:16px;min-height:120px'; const file=document.createElement('input'); file.type='file'; file.accept='.txt,text/plain'; file.dataset.importFile='true'; file.style.cssText='box-sizing:border-box;width:100%;max-width:100%;font-size:16px'; const result=document.createElement('div'); result.dataset.importResult='true'; file.onchange=()=>{const chosen=file.files[0];if(!chosen||!chosen.name.toLowerCase().endsWith('.txt')){result.textContent='Selecione um arquivo TXT';return;}const reader=new FileReader();reader.onload=()=>{text.value=String(reader.result||'');};reader.readAsText(chosen);};
+  const preview=document.createElement('button'); preview.dataset.importPreview='true'; preview.textContent='Ver prévia'; preview.style.minHeight='44px';
+  const confirm=document.createElement('button'); confirm.dataset.importConfirm='true'; confirm.textContent='Confirmar'; confirm.style.minHeight='44px';
+  const cancel=document.createElement('button'); cancel.dataset.importCancel='true'; cancel.textContent='Cancelar'; cancel.style.minHeight='44px';
+  let draft=null; preview.onclick=()=>{const day=(text.value.match(/Dia:\s*(.+)/i)||[])[1], exercise=(text.value.match(/Exercício:\s*(.+)/i)||[])[1]; if(!day||!exercise){result.textContent='Texto inválido';return;} draft={id:`import-${day.toLowerCase().replace(/\W+/g,'-')}`,label:day,focus:'Importado',duration:'—',warmup:[],exercises:[{id:`import-ex-${Date.now()}`,name:exercise,sets:Number((text.value.match(/Séries:\s*(\d+)/i)||[])[1]||1),reps:(text.value.match(/Reps:\s*(.+)/i)||[])[1]||'—',rest:60,rir:'—',notes:'',video:'#'}]}; result.textContent=`Prévia: ${draft.label} — ${exercise}`;};
+  confirm.onclick=()=>{if(!draft)return; let all=[];try{all=JSON.parse(localStorage.getItem(IMPORTED_WORKOUTS_KEY)||'[]');if(!Array.isArray(all))all=[];}catch{} if(!all.some(x=>x.id===draft.id)){all.push(draft);localStorage.setItem(IMPORTED_WORKOUTS_KEY,JSON.stringify(all));} modal.remove();}; cancel.onclick=()=>modal.remove(); card.append('Importar novo treino',file,text,preview,result,confirm,cancel);modal.append(card);document.body.append(modal);
+}
+function getAvailableWorkouts(){let imported=[];try{imported=JSON.parse(localStorage.getItem(IMPORTED_WORKOUTS_KEY)||'[]');}catch{} if(!Array.isArray(imported))imported=[];return {...WORKOUTS,...Object.fromEntries(imported.filter(x=>x&&x.id&&!WORKOUTS[x.id]).map(x=>[x.id,x]))};}
 /* SERVICE WORKER */
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
   window.addEventListener("load", () => {
