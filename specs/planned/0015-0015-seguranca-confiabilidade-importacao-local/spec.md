@@ -260,6 +260,7 @@ tests/service-worker-offline.test.js
 | US-001, FR-001, NFR-001, AC-002 | AC-002 | `tests/workout-import.test.js` | 2 falhas: Confirmar habilitado | 2/2 verde, draft invalidado | focais 58/58 |
 | US-001, FR-001, NFR-001, AC-003 | AC-003 | `tests/keep-awake-preference.test.js` | 2 timeouts: request ausente | 2/2 verde, lifecycle seguro | focais 58/58 |
 | US-001, FR-001, NFR-001, AC-004 | AC-004 | `tests/service-worker-offline.test.js` | 1 falha: módulos ausentes | 1/1 verde, cache `v7` | focais 58/58 |
+| US-001, FR-001, NFR-001, AC-001 | AC-001 | `tests/html-byte-parity.test.js` | 1 falha: `Buffer.compare` retornou -1 após quatro CRLF extras | 1/1 verde, 112332 bytes idênticos | regressão de produto pendente |
 
 ### 12. Plano de testes e rastreabilidade
 
@@ -350,10 +351,16 @@ tests/service-worker-offline.test.js
   - [x] **VERIFY**: focais 58/58; produto 166 verde; Partitura externa indisponível neste terminal.
   - [x] **EVIDENCE**: monitor CURRENT, documentação check e paridade exit 0.
   - [x] **IMPROVE**: contrato offline local determinístico, sem portal adicional.
+- [x] T010 [TEST] [TDD] [US-001] Reproduzir e impedir divergência binária em `tests/html-byte-parity.test.js` — Refs: US-001, FR-001, NFR-001, AC-001 — Depends: T005
+  - [x] **PREP**: comparação por bytes e offset 91097 confirmados; `git diff --no-index` normaliza CRLF e não é oráculo suficiente.
+  - [x] **EXECUTE**: teste lê Buffers sem normalização; a correção restaurou em `index.html` o padrão de bytes do standalone após confirmar conteúdo textual idêntico.
+  - [x] **VERIFY**: RED exit 1 com `Buffer.compare=-1`; GREEN exit 0 e ambos medem 112332 bytes.
+  - [x] **EVIDENCE**: `npm run test:tdd -- tests/html-byte-parity.test.js --reporter=dot --testTimeout=5000`, exit 0.
+  - [x] **IMPROVE**: o oráculo binário impede novo falso positivo por normalização de final de linha.
 
 ### 15. Ordem de execução
 
-- Caminho crítico: T001→T005→T002→T006→T003→T007→T004→T008→T009.
+- Caminho crítico: T001→T005→T002→T006→T003→T007→T004→T008→T009→T010.
 - Tarefas paralelas: nenhuma; HTMLs e suites são fontes compartilhadas.
 - Estratégia de MVP: quatro correções mínimas locais sem mudança de dados ou rede.
 
