@@ -871,7 +871,7 @@ a { color: var(--neon); text-decoration: none; }
         </div>
         <div class="form-row" style="display:flex;align-items:center;justify-content:space-between;">
           <span>Manter Tela Ligada no Treino</span>
-          <input type="checkbox" id="keepAwakeToggle" onchange="toggleWakeLock(this.checked)" style="width:auto;">
+          <input type="checkbox" id="keepAwakeToggle" onchange="updateKeepAwakePreference(this.checked)" style="width:44px;height:44px;min-width:44px;min-height:44px;">
         </div>
         <button class="btn-timer-ctrl" onclick="testAudioAlarm()" style="width:100%;margin-top:10px;">🔊 Testar Som e Vibração Agora</button>
       </div>
@@ -2419,9 +2419,14 @@ function deepClone(x) { return JSON.parse(JSON.stringify(x)); }
 function loadState() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) return JSON.parse(saved);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        return { ...parsed, keepAwakeEnabled: parsed.keepAwakeEnabled === true };
+      }
+    }
   } catch(e) {}
-  return deepClone(DEFAULT_STATE);
+  return { ...deepClone(DEFAULT_STATE), keepAwakeEnabled: false };
 }
 function persist() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -3166,6 +3171,22 @@ function deleteHistorySession(id) {
 }
 
 /* WAKELOCK FOR SCREEN */
+function getKeepAwakePreference() {
+  return state.keepAwakeEnabled === true;
+}
+
+function syncKeepAwakePreferenceControl() {
+  const toggle = document.getElementById('keepAwakeToggle');
+  if (toggle) toggle.checked = getKeepAwakePreference();
+}
+
+function updateKeepAwakePreference(enabled) {
+  state.keepAwakeEnabled = enabled === true;
+  persist();
+  syncKeepAwakePreferenceControl();
+  return toggleWakeLock(state.keepAwakeEnabled);
+}
+
 async function toggleWakeLock(enabled) {
   if (!enabled) {
     if (wakeLockSentinel) { try { await wakeLockSentinel.release(); } catch(e){} wakeLockSentinel = null; }
@@ -3519,6 +3540,7 @@ initCalendarStrip();
 updateTodayHero();
 calculateStreaksAndWeekly();
 renderProfileSummary();
+syncKeepAwakePreferenceControl();
 </script>
 </body>
 </html>
