@@ -153,3 +153,7 @@ Scenario: navegador sem Wake Lock ou desmarcação
 - **DEC-001**: usar o estado local existente em vez de chave nova — preserva compatibilidade e evita dados paralelos.
 ### 18. Definition of Done
 - [x] Gates, tarefas, três ACs, paridade, visual e commit local seletivo comprovados.
+
+### Adendo de mudança tardia — 2026-08-29
+
+- **Impacto preservado**: revisão independente identificou que a preferência restaurada não solicitava Wake Lock ao iniciar o runner e não se recuperava com segurança ao retornar à visibilidade. A correção e nova evidência são governadas pela SPEC-0015; esta SPEC permanece como histórico da entrega original.

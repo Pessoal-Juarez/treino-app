@@ -27,6 +27,22 @@ for (const file of ['index.html', 'treino_hibrido_juarez_v3_standalone.html']) {
     dom.window.openWorkoutImport(); document.querySelector('[data-import-text]').value = 'Dia: Sábado\nExercício: Agachamento\nSéries: 3\nReps: 8'; document.querySelector('[data-import-preview]').click(); document.querySelector('[data-import-confirm]').click();
     expect(JSON.parse(localStorage.getItem('treino_hibrido_juarez_v5_imported_workouts'))).toHaveLength(1); dom.window.close();
   });
+  // SPECSFY: US-001 FR-001 NFR-001 AC-002
+  test(`${file} never confirms a stale preview after text or file input changes`, async () => {
+    const dom = await app(); const { document, localStorage } = dom.window;
+    dom.window.openWorkoutImport();
+    const text = document.querySelector('[data-import-text]'); const confirm = document.querySelector('[data-import-confirm]');
+    text.value = 'Dia: Sábado\nExercício: Agachamento\nSéries: 3\nReps: 8'; document.querySelector('[data-import-preview]').click();
+    expect(confirm.disabled).toBe(false);
+    text.value = 'conteúdo inválido'; text.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+    expect(confirm.disabled).toBe(true); confirm.click();
+    expect(localStorage.getItem('treino_hibrido_juarez_v5_imported_workouts')).toBeNull();
+    const file = document.querySelector('[data-import-file]');
+    Object.defineProperty(file, 'files', { configurable: true, value: [new dom.window.File(['x'], 'invalido.csv', { type: 'text/csv' })] });
+    file.dispatchEvent(new dom.window.Event('change')); await new Promise(resolve => setTimeout(resolve, 10));
+    expect(confirm.disabled).toBe(true); confirm.click();
+    expect(localStorage.getItem('treino_hibrido_juarez_v5_imported_workouts')).toBeNull(); dom.window.close();
+  });
   // SPECSFY: US-001 FR-001 FR-002 FR-003 NFR-001 AC-003
   test(`${file} rejects invalid input and cancel does not persist`, async () => {
     const dom = await app(); const { document, localStorage } = dom.window;
@@ -53,6 +69,28 @@ for (const file of ['index.html', 'treino_hibrido_juarez_v3_standalone.html']) {
   // SPECSFY: US-001 FR-001 FR-002 FR-003 NFR-001 AC-002
   test(`${file} renders and starts confirmed imported workout`, async () => {
     const dom = await app(); const { document } = dom.window; dom.window.openWorkoutImport(); document.querySelector('[data-import-text]').value='Dia: Sábado\nExercício: Agachamento'; document.querySelector('[data-import-preview]').click(); document.querySelector('[data-import-confirm]').click(); dom.window.renderFullPlan(); expect(document.querySelector('#fullPlanContainer').textContent).toContain('Sábado'); dom.window.startWorkoutByKey('import-s-bado'); expect(document.querySelector('#runnerExerciseName').textContent).toContain('Agachamento'); dom.window.close();
+  });
+  // SPECSFY: US-001 FR-001 NFR-001 AC-001
+  test(`${file} keeps imported target repetitions as text through runner and overview`, async () => {
+    const dom = await app(); const { document } = dom.window;
+    const targetReps = '12 <img src=x onerror=alert(1)><svg onload=alert(2)></svg><script>alert(3)</script>';
+    dom.window.openWorkoutImport();
+    document.querySelector('[data-import-text]').value = `Segunda-feira: Foco teste Exercício  Volume / Tempo  Instruções / Dica  Agachamento  3 séries x ${targetReps}  Técnica controlada`;
+    document.querySelector('[data-import-preview]').click();
+    document.querySelector('[data-import-confirm]').click();
+    const imported = JSON.parse(dom.window.localStorage.getItem('treino_hibrido_juarez_v5_imported_workouts'));
+    imported[0].exercises[0].video = 'javascript:alert(4)';
+    dom.window.localStorage.setItem('treino_hibrido_juarez_v5_imported_workouts', JSON.stringify(imported));
+    dom.window.startWorkoutByKey('import-segunda-feira');
+    dom.window.openExerciseOverviewDrawer();
+    for (const selector of ['#runnerMetaTags', '#runnerSetsContainer', '#overviewDrawerList']) {
+      expect(document.querySelector(`${selector} img,${selector} svg,${selector} script`)).toBeNull();
+    }
+    expect(document.querySelector('#runnerMetaTags').textContent).toContain(targetReps);
+    expect(document.querySelector('#runnerSetsContainer input[inputmode="numeric"]').getAttribute('placeholder')).toBe(targetReps);
+    expect(document.querySelector('#overviewDrawerList').textContent).toContain(targetReps);
+    expect(document.querySelector('#runnerVideoLink').getAttribute('href')).toBe('#');
+    dom.window.close();
   });
   // SPECSFY: US-001 FR-001 FR-002 FR-003 NFR-001 AC-003
   test(`${file} rejects an unsupported file without persistence`, async () => { const dom=await app(),{document,localStorage}=dom.window;dom.window.openWorkoutImport();const input=document.querySelector('[data-import-file]');Object.defineProperty(input,'files',{value:[new dom.window.File(['x'],'treino.csv',{type:'text/csv'})]});input.dispatchEvent(new dom.window.Event('change'));await new Promise(r=>setTimeout(r,10));expect(document.querySelector('[data-import-result]').textContent).toContain('TXT ou PDF');expect(localStorage.getItem('treino_hibrido_juarez_v5_imported_workouts')).toBeNull();dom.window.close(); });

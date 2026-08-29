@@ -100,6 +100,30 @@ for (const file of variants) {
     reopened.window.close();
   });
 
+  // SPECSFY: US-001 FR-001 NFR-001 AC-003
+  test(`${file} restores Wake Lock for an active runner and only reacquires it while active`, async () => {
+    let requests = 0; let releases = 0;
+    const savedState = JSON.stringify({ onboardingSeen: true, onboardingConfigured: true, keepAwakeEnabled: true, profile: {}, sessions: [] });
+    const dom = await openApp(file, { savedState, beforeParse(window) {
+      Object.defineProperty(window.navigator, 'wakeLock', { configurable: true, value: { request: async (type) => {
+        requests += 1; expect(type).toBe('screen'); return { release: async () => { releases += 1; } };
+      } } });
+    } });
+    const { document, localStorage } = dom.window;
+    localStorage.setItem(`${STORAGE_KEY}_imported_workouts`, JSON.stringify([{ id: 'import-teste', label: 'Teste', exercises: [{ id: 'x', name: 'Agachamento', sets: 1, reps: '8', rest: 60, rir: '—', notes: '', video: '#' }] }]));
+    dom.window.startWorkoutByKey('import-teste');
+    await waitFor(() => requests === 1 && dom.window.eval('wakeLockSentinel !== null'), 'Wake Lock request at workout start');
+    await dom.window.toggleWakeLock(false); expect(releases).toBe(1);
+    dom.window.eval('wakeLockSentinel = null');
+    Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' });
+    document.dispatchEvent(new dom.window.Event('visibilitychange'));
+    await waitFor(() => requests === 2, 'Wake Lock reacquisition for active runner');
+    dom.window.eval('activeWorkout = null; wakeLockSentinel = null');
+    document.dispatchEvent(new dom.window.Event('visibilitychange'));
+    await new Promise(resolve => setTimeout(resolve, 10)); expect(requests).toBe(2);
+    dom.window.close();
+  });
+
   // SPECSFY: US-001 FR-001 FR-002 FR-003 NFR-001 AC-003
   test(`${file} keeps the preference and UI usable without or after rejected Wake Lock`, async () => {
     const unsupported = await openApp(file);

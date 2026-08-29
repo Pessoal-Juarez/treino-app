@@ -162,3 +162,7 @@ Scenario: PDF inválido ou sem texto útil
 - **DEC-001**: pdfjs-dist local fixo sem CDN/rede — Juarez, opção 2, 2026-08-29.
 ### 18. Definition of Done
 - [x] Gates focais, tarefas, ACs, evidências, visual e paridade completos.
+
+### Adendo de mudança tardia — 2026-08-29
+
+- **Impacto preservado**: revisão independente encontrou XSS em valores importados do runner, confirmação de prévia obsoleta e ausência de cache frio dos módulos PDF. A correção e a nova evidência são governadas pela SPEC-0015; esta SPEC permanece como histórico da entrega original.

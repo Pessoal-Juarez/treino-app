@@ -3,7 +3,7 @@
 <!-- specsfy:documentator:start -->
 ## Resumo
 
-- Arquivos de teste: 20.
+- Arquivos de teste: 21.
 - Runner: Vitest.
 - Scripts: test:tdd: vitest run.
 
@@ -23,6 +23,7 @@
 | tests\partitura\procurador.test.js |
 | tests\rest-timer-navigation.test.js |
 | tests\security-output-escaping.test.js |
+| tests\service-worker-offline.test.js |
 | tests\verify-evidence-windows.test.js |
 | tests\verify-repo-trace-isolation.test.js |
 | tests\vibration-levels.test.js |

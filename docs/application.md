@@ -24,6 +24,7 @@ Relação: relaciona cada arquivo observado à sua superfície.
 | Testes | tests/partitura/procurador.test.js | expectConcepts |
 | Testes | tests/rest-timer-navigation.test.js | render, NativeDate, extends |
 | Testes | tests/security-output-escaping.test.js | render |
+| Testes | tests/service-worker-offline.test.js | PDF_MODULE, PDF_WORKER |
 | Testes | tests/verify-evidence-windows.test.js | — |
 | Testes | tests/verify-repo-trace-isolation.test.js | — |
 | Testes | tests/vibration-levels.test.js | render |

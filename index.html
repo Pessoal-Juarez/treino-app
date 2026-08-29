@@ -60,8 +60,8 @@ button { cursor: pointer; border: none; outline: none; }
   outline-offset: 2px;
 }
 .setup-import-control:disabled {
-  background-color: #e8edf0 !important;
-  color: #48545f !important;
+  background-color: #f3f7fa !important;
+  color: #090d12 !important;
   cursor: not-allowed;
   opacity: .6;
 }
@@ -1564,6 +1564,15 @@ function startTodayWorkout() {
   startWorkoutByKey(key);
 }
 
+function getSafeRunnerVideoHref(value) {
+  try {
+    const url = new URL(String(value || '#'), location.href);
+    return ['http:', 'https:'].includes(url.protocol) ? url.href : '#';
+  } catch {
+    return '#';
+  }
+}
+
 function startWorkoutByKey(dayKey) {
   const w = getAvailableWorkouts()[dayKey];
   if (!w) return;
@@ -1605,6 +1614,7 @@ function startWorkoutByKey(dayKey) {
 
   document.getElementById("runnerOverlay").classList.add("active");
   document.body.style.overflow = "hidden";
+  if (getKeepAwakePreference()) toggleWakeLock(true);
   
   // Start elapsed workout clock
   if (runnerTotalClockInterval) clearInterval(runnerTotalClockInterval);
@@ -1634,17 +1644,16 @@ function renderRunnerExercise(index) {
   document.getElementById("runnerExerciseBadge").textContent = `Exercício ${index + 1} de ${total}`;
   document.getElementById("runnerExerciseName").textContent = ex.name;
   
-  // Meta tags
-  document.getElementById("runnerMetaTags").innerHTML = `
-    <span class="tag-pill">${ex.setsCount} séries</span>
-    <span class="tag-pill">${ex.targetReps} reps</span>
-    <span class="tag-pill">Descanso ${ex.restSeconds}s</span>
-    <span class="tag-pill">RIR ${ex.rir}</span>
-  `;
+  // Meta tags: imported and persisted values must remain literal text.
+  const runnerMetaTags = document.getElementById("runnerMetaTags");
+  runnerMetaTags.replaceChildren(...[
+    `${ex.setsCount} séries`, `${ex.targetReps} reps`,
+    `Descanso ${ex.restSeconds}s`, `RIR ${ex.rir}`,
+  ].map(text => { const tag = document.createElement('span'); tag.className = 'tag-pill'; tag.textContent = text; return tag; }));
 
   // Video Link
   const videoBtn = document.getElementById("runnerVideoLink");
-  videoBtn.href = ex.video;
+  videoBtn.href = getSafeRunnerVideoHref(ex.video);
   const isometricCard = document.querySelector("[data-isometric-timer]");
   isometricCard.style.display = ex.isometric ? "flex" : "none";
   if (ex.isometric) {
@@ -1673,25 +1682,21 @@ function renderRunnerExercise(index) {
 
   // Render Sets Input Cards
   const setsContainer = document.getElementById("runnerSetsContainer");
-  setsContainer.innerHTML = ex.sets.map((st, sIdx) => `
-    <div class="set-row-card ${st.done ? 'done' : ''}" id="setRow_${index}_${sIdx}">
-      <div class="set-index-badge">${st.setNum}</div>
-      <div class="set-inputs-wrap">
-        <div class="set-input-group set-input-group--load">
-          <label>Carga (kg)</label>
-          <input type="text" inputmode="decimal" value="${String(st.weight ?? "").replace(/\s*kg\s*$/i, "")}" placeholder="Ex: 32" onchange="updateSetData(${index}, ${sIdx}, 'weight', this.value)">
-          <span class="series-load-suffix" aria-hidden="true">kg</span>
-        </div>
-        <div class="set-input-group">
-          <label>Repetições</label>
-          <input type="text" inputmode="numeric" value="${st.reps}" placeholder="${ex.targetReps}" onchange="updateSetData(${index}, ${sIdx}, 'reps', this.value)">
-        </div>
-      </div>
-      <button class="btn-check-set" onclick="toggleCompleteSet(${index}, ${sIdx}, ${ex.restSeconds})" title="Concluir série">
-        ${st.done ? '✓' : '○'}
-      </button>
-    </div>
-  `).join("");
+  setsContainer.replaceChildren(...ex.sets.map((st, sIdx) => {
+    const row = document.createElement('div'); row.className = `set-row-card${st.done ? ' done' : ''}`; row.id = `setRow_${index}_${sIdx}`;
+    const badge = document.createElement('div'); badge.className = 'set-index-badge'; badge.textContent = String(st.setNum);
+    const inputs = document.createElement('div'); inputs.className = 'set-inputs-wrap';
+    const loadGroup = document.createElement('div'); loadGroup.className = 'set-input-group set-input-group--load';
+    const loadLabel = document.createElement('label'); loadLabel.textContent = 'Carga (kg)';
+    const load = document.createElement('input'); load.type = 'text'; load.inputMode = 'decimal'; load.value = String(st.weight ?? '').replace(/\s*kg\s*$/i, ''); load.placeholder = 'Ex: 32'; load.onchange = () => updateSetData(index, sIdx, 'weight', load.value);
+    const suffix = document.createElement('span'); suffix.className = 'series-load-suffix'; suffix.setAttribute('aria-hidden', 'true'); suffix.textContent = 'kg'; loadGroup.append(loadLabel, load, suffix);
+    const repsGroup = document.createElement('div'); repsGroup.className = 'set-input-group';
+    const repsLabel = document.createElement('label'); repsLabel.textContent = 'Repetições';
+    const reps = document.createElement('input'); reps.type = 'text'; reps.inputMode = 'numeric'; reps.value = String(st.reps ?? ''); reps.placeholder = String(ex.targetReps ?? ''); reps.onchange = () => updateSetData(index, sIdx, 'reps', reps.value); repsGroup.append(repsLabel, reps);
+    inputs.append(loadGroup, repsGroup);
+    const complete = document.createElement('button'); complete.className = 'btn-check-set'; complete.title = 'Concluir série'; complete.textContent = st.done ? '✓' : '○'; complete.onclick = () => toggleCompleteSet(index, sIdx, ex.restSeconds);
+    row.append(badge, inputs, complete); return row;
+  }));
 
   // Navigation Buttons State
   document.getElementById("btnPrevExercise").style.visibility = (index === 0) ? "hidden" : "visible";
@@ -1918,15 +1923,12 @@ function skipCurrentExercise() {
 function openSkippedModal(skippedList) {
   const modal = document.getElementById("skippedModal");
   const list = document.getElementById("skippedModalList");
-  list.innerHTML = skippedList.map(e => `
-    <div class="exercise-list-item" onclick="jumpToSkippedExercise('${e.id}')">
-      <div>
-        <b>${e.name}</b>
-        <div style="font-size:0.75rem;color:var(--muted);">${e.setsCount} séries pendentes</div>
-      </div>
-      <span class="status-pill skipped">Fazer Agora ➔</span>
-    </div>
-  `).join("");
+  list.replaceChildren(...skippedList.map(e => {
+    const item = document.createElement('div'); item.className = 'exercise-list-item'; item.onclick = () => jumpToSkippedExercise(e.id);
+    const details = document.createElement('div'); const name = document.createElement('b'); name.textContent = e.name;
+    const meta = document.createElement('div'); meta.style.cssText = 'font-size:0.75rem;color:var(--muted);'; meta.textContent = `${e.setsCount} séries pendentes`; details.append(name, meta);
+    const action = document.createElement('span'); action.className = 'status-pill skipped'; action.textContent = 'Fazer Agora ➔'; item.append(details, action); return item;
+  }));
   modal.classList.add("active");
 }
 
@@ -1954,25 +1956,18 @@ function openExerciseOverviewDrawer() {
   if (!activeWorkout) return;
   const drawer = document.getElementById("overviewDrawer");
   const list = document.getElementById("overviewDrawerList");
-  
-  list.innerHTML = activeWorkout.exerciseData.map((e, idx) => {
+  list.replaceChildren(...activeWorkout.exerciseData.map((e, idx) => {
     const isDone = e.sets.every(s => s.done);
     const isSkipped = e.skipped;
     let statusText = "Pendente";
     let statusClass = "pending";
     if (isDone) { statusText = "Concluído"; statusClass = "done"; }
     else if (isSkipped) { statusText = "Pulado"; statusClass = "skipped"; }
-
-    return `
-      <div class="exercise-list-item ${idx === activeWorkout.currentIndex ? 'active-item' : ''}" onclick="jumpToExercise(${idx})">
-        <div>
-          <b>${idx + 1}. ${e.name}</b>
-          <div style="font-size:0.75rem;color:var(--muted);">${e.setsCount} séries · ${e.targetReps} reps</div>
-        </div>
-        <span class="status-pill ${statusClass}">${statusText}</span>
-      </div>
-    `;
-  }).join("");
+    const item = document.createElement('div'); item.className = `exercise-list-item${idx === activeWorkout.currentIndex ? ' active-item' : ''}`; item.onclick = () => jumpToExercise(idx);
+    const details = document.createElement('div'); const name = document.createElement('b'); name.textContent = `${idx + 1}. ${e.name}`;
+    const meta = document.createElement('div'); meta.style.cssText = 'font-size:0.75rem;color:var(--muted);'; meta.textContent = `${e.setsCount} séries · ${e.targetReps} reps`; details.append(name, meta);
+    const status = document.createElement('span'); status.className = `status-pill ${statusClass}`; status.textContent = statusText; item.append(details, status); return item;
+  }));
 
   drawer.classList.add("active");
 }
@@ -2029,6 +2024,7 @@ function saveActiveWorkoutSession() {
   if (runnerTotalClockInterval) clearInterval(runnerTotalClockInterval);
   if (runnerTimerInterval) clearInterval(runnerTimerInterval);
   activeWorkout = null;
+  toggleWakeLock(false);
 
   closeFinishModal();
   document.getElementById("runnerOverlay").classList.remove("active");
@@ -2045,6 +2041,7 @@ function promptExitWorkout() {
     if (runnerTotalClockInterval) clearInterval(runnerTotalClockInterval);
     if (runnerTimerInterval) clearInterval(runnerTimerInterval);
     activeWorkout = null;
+    toggleWakeLock(false);
     document.getElementById("runnerOverlay").classList.remove("active");
     document.body.style.overflow = "auto";
   }
@@ -2258,6 +2255,12 @@ function editProfileModal() {
   };
   document.body.append(editor); renderStep();
 }
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && activeWorkout && getKeepAwakePreference() && !wakeLockSentinel) {
+    toggleWakeLock(true);
+  }
+});
 
 const EQUIPMENT_STORAGE_KEY = 'treino_hibrido_juarez_v5_equipment';
 const EQUIPMENT_DEFAULTS = [
@@ -2521,13 +2524,14 @@ function openWorkoutImport(fromOnboarding = false) {
   pdfError.setAttribute('role', 'alert');
 
   file.onchange = async () => {
+    invalidateDraft();
     const chosen = file.files[0];
     const filename = chosen?.name?.toLowerCase() || '';
     pdfError.textContent = '';
     if (filename.endsWith('.txt')) {
       const reader = new FileReader();
-      reader.onload = () => { text.value = String(reader.result || ''); };
-      reader.onerror = () => { result.textContent = 'Não foi possível ler o arquivo TXT.'; };
+      reader.onload = () => { text.value = String(reader.result || ''); invalidateDraft(); };
+      reader.onerror = () => { invalidateDraft(); result.textContent = 'Não foi possível ler o arquivo TXT.'; };
       reader.readAsText(chosen);
       return;
     }
@@ -2536,9 +2540,10 @@ function openWorkoutImport(fromOnboarding = false) {
       return;
     }
     try {
-      text.value = await readWorkoutPdf(chosen);
+      text.value = await readWorkoutPdf(chosen); invalidateDraft();
       result.textContent = 'Texto extraído localmente do PDF. Revise a prévia antes de confirmar.';
     } catch {
+      invalidateDraft();
       pdfError.textContent = 'Não foi possível ler este PDF. Arquivos criptografados ou sem texto não são compatíveis.';
       result.textContent = '';
     }
@@ -2554,6 +2559,7 @@ function openWorkoutImport(fromOnboarding = false) {
   confirm.className = 'setup-import-control';
   confirm.textContent = 'Confirmar';
   confirm.style.minHeight = '44px';
+  confirm.disabled = true;
   const cancel = document.createElement('button');
   cancel.dataset.importCancel = 'true';
   cancel.className = 'setup-import-control';
@@ -2561,17 +2567,23 @@ function openWorkoutImport(fromOnboarding = false) {
   cancel.style.minHeight = '44px';
 
   let draft = [];
+  let previewText = '';
+  const invalidateDraft = () => { draft = []; previewText = ''; confirm.disabled = true; };
+  text.addEventListener('input', invalidateDraft);
   preview.onclick = () => {
+    invalidateDraft();
     draft = parseImportedWorkoutPlan(text.value);
     if (!draft.length) {
       result.textContent = 'Formato inválido: não reconhecemos um treino. Use "Dia:" e "Exercício:" ou um cabeçalho como "Segunda-feira: ... Exercício  Volume / Tempo  Instruções / Dica".';
       return;
     }
     const exerciseCount = draft.reduce((total, workout) => total + workout.exercises.length, 0);
+    previewText = text.value;
+    confirm.disabled = false;
     result.textContent = `Prévia: ${draft.length} ${draft.length === 1 ? 'dia' : 'dias'} · ${exerciseCount} ${exerciseCount === 1 ? 'exercício' : 'exercícios'} — ${draft.map(workout => workout.label).join(', ')}`;
   };
   confirm.onclick = () => {
-    if (!draft.length) return;
+    if (!draft.length || confirm.disabled || text.value !== previewText) return;
     let all = [];
     try {
       all = JSON.parse(localStorage.getItem(IMPORTED_WORKOUTS_KEY) || '[]');

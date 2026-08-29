@@ -543,3 +543,7 @@ Cada tarefa possui exatamente este checklist, atualizado durante a execução:
 - [x] Todos os requisitos possuem evidência de verificação.
 - [x] Todas as tarefas na seção 14 estão concluídas.
 - [x] Testes, documentação, checks estáticos, paridade e monitor disponíveis passam.
+
+### Adendo de mudança tardia — 2026-08-29
+
+- **Impacto preservado**: revisão independente encontrou XSS nos sinks do runner para valores importados, prévia de importação obsoleta e ausência de precache offline dos módulos PDF. A correção e nova evidência são governadas pela SPEC-0015; esta SPEC permanece como histórico da entrega original.

@@ -19,6 +19,7 @@
 | 12 | 0013-onboarding-configurador-local-feedback-manual | Complete | — |
 | 13 | 0014-acessibilidade-controles-importacao-pdf-multidia | Complete | — |
 | 14 | 0002-orquestrador-com-capacidade-de-procurador | Implementing | — |
+| 15 | 0015-0015-seguranca-confiabilidade-importacao-local | Planned | — |
 
 ## Marcos
 
