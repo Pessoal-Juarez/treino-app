@@ -931,6 +931,16 @@ a { color: var(--neon); text-decoration: none; }
       <span>▶ Ver Execução Correta</span>
     </a>
 
+    <div class="last-performance-badge" data-equipment-summary style="display:block;background:var(--panel);border-color:var(--line);border-style:solid;border-width:1px;border-radius:16px">
+      <div class="badge-content" style="width:100%">
+        <div class="badge-title">
+          Configuração do equipamento
+          <button type="button" data-action="edit" style="float:right;background:var(--neon);color:var(--bg);border:0;border-radius:12px;min-height:44px;padding:4px 12px;font:inherit;font-weight:800">Editar</button>
+        </div>
+        <div id="runnerEquipmentPairs" class="badge-record"></div>
+      </div>
+    </div>
+
     <!-- LAST SESSION RECORD BADGE -->
     <div class="last-performance-badge" id="runnerLastRecordBadge">
       <div class="badge-star">⭐</div>
@@ -2632,6 +2642,7 @@ function renderRunnerExercise(index) {
   // Video Link
   const videoBtn = document.getElementById("runnerVideoLink");
   videoBtn.href = ex.video;
+  renderEquipmentSummary(ex);
 
   // Last session record badge
   const recordBadge = document.getElementById("runnerLastRecordBadge");
@@ -3163,6 +3174,114 @@ function editProfileModal() {
   persist();
   renderProfileSummary();
 }
+
+const EQUIPMENT_STORAGE_KEY = 'treino_hibrido_juarez_v5_equipment';
+const EQUIPMENT_DEFAULTS = [
+  { label: 'Encosto', value: '' },
+  { label: 'Rolo', value: '' },
+  { label: 'Posição inicial', value: '' },
+];
+
+function getEquipmentStore() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(EQUIPMENT_STORAGE_KEY) || '{}');
+    return stored && typeof stored === 'object' && !Array.isArray(stored) ? stored : {};
+  } catch {
+    return {};
+  }
+}
+
+function getEquipment(exerciseId) {
+  const storedPairs = getEquipmentStore()[exerciseId];
+  return EQUIPMENT_DEFAULTS.map((fallback, index) => {
+    const storedPair = Array.isArray(storedPairs) ? storedPairs[index] : null;
+    return {
+      label: typeof storedPair?.label === 'string' ? storedPair.label : fallback.label,
+      value: typeof storedPair?.value === 'string' ? storedPair.value : '',
+    };
+  });
+}
+
+function renderEquipmentSummary(exercise) {
+  const target = document.getElementById('runnerEquipmentPairs');
+  target.replaceChildren();
+
+  getEquipment(exercise.id).forEach((pair) => {
+    const item = document.createElement('span');
+    item.dataset.equipmentPair = '';
+    item.style.cssText = 'display:inline-block;margin:4px 6px 0 0;padding:4px 8px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)';
+    item.textContent = `${pair.label}: ${pair.value || '—'}`;
+    target.append(item);
+  });
+}
+
+function createEquipmentInput(name, value) {
+  const input = document.createElement('input');
+  input.name = name;
+  input.maxLength = 40;
+  input.value = value;
+  input.style.cssText = 'width:100%;box-sizing:border-box;min-height:44px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--text);font:400 16px/1.3 "Plus Jakarta Sans",sans-serif';
+  return input;
+}
+
+function openEquipmentEditor() {
+  const exercise = activeWorkout.exerciseData[activeWorkout.currentIndex];
+  const pairs = getEquipment(exercise.id);
+  const overlay = document.createElement('div');
+  const card = document.createElement('div');
+  const actions = document.createElement('div');
+
+  overlay.dataset.equipmentEditor = '';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(9,13,18,.82);font-family:"Plus Jakarta Sans",sans-serif';
+  card.style.cssText = 'width:min(100%,390px);box-sizing:border-box;padding:16px;background:var(--panel);border:1px solid var(--line);border-radius:16px;color:var(--text);box-shadow:0 20px 48px rgba(0,0,0,.45)';
+  actions.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px';
+
+  const title = document.createElement('h3');
+  title.textContent = 'Configurar equipamento';
+  title.style.cssText = 'margin:0 0 14px;font:800 18px/1.25 "Plus Jakarta Sans",sans-serif;color:var(--text)';
+  card.append(title);
+
+  pairs.forEach((pair, index) => {
+    const row = document.createElement('div');
+    row.dataset.equipmentPair = '';
+    row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px';
+    row.append(
+      createEquipmentInput(`label-${index}`, pair.label),
+      createEquipmentInput(`value-${index}`, pair.value),
+    );
+    card.append(row);
+  });
+
+  const cancel = document.createElement('button');
+  cancel.type = 'button';
+  cancel.dataset.action = 'cancel';
+  cancel.textContent = 'Cancelar';
+  cancel.style.cssText = 'min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--text);font:800 16px "Plus Jakarta Sans",sans-serif';
+  cancel.addEventListener('click', () => overlay.remove());
+
+  const save = document.createElement('button');
+  save.type = 'button';
+  save.dataset.action = 'save';
+  save.textContent = 'Salvar';
+  save.style.cssText = 'min-height:44px;border:0;border-radius:12px;background:var(--neon);color:var(--bg);font:800 16px "Plus Jakarta Sans",sans-serif';
+  save.addEventListener('click', () => {
+    const stored = getEquipmentStore();
+    stored[exercise.id] = pairs.map((_, index) => ({
+      label: card.querySelector(`[name="label-${index}"]`).value.trim(),
+      value: card.querySelector(`[name="value-${index}"]`).value.trim(),
+    }));
+    localStorage.setItem(EQUIPMENT_STORAGE_KEY, JSON.stringify(stored));
+    overlay.remove();
+    renderEquipmentSummary(exercise);
+  });
+
+  actions.append(cancel, save);
+  card.append(actions);
+  overlay.append(card);
+  document.body.append(overlay);
+}
+
+document.querySelector('[data-action="edit"]').addEventListener('click', openEquipmentEditor);
 
 function renderProfileSummary() {
   const p = state.profile;

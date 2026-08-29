@@ -16,6 +16,7 @@ Mapa de persistência e armazenamento de dados do aplicativo Treino Híbrido.
 | --- | --- | --- | --- | --- |
 | Registro de Treino / Sessão | Objeto JSON no LocalStorage | data, tipoTreino, prontidao, duracaoMinutos, series (exercicio, serie, peso, reps, rpe), notas | Ligado ao histórico de sessões | index.html |
 | Configurações do Timer | Objeto JSON no LocalStorage | tempoDescansoPadrao, somHabilitado, vibracaoHabilitada, volume | Usado pelo cronômetro flutuante | index.html |
+| Configuração do equipamento por exercício | Objeto JSON no LocalStorage, chave `treino_hibrido_juarez_v5_equipment` | Mapa por ID de exercício com exatamente três pares `{ label, value }`; JSON inválido retorna defaults e não é interpolado em HTML | Não altera carga/repetições das séries; restaurado somente para o mesmo ID de exercício | index.html e treino_hibrido_juarez_v3_standalone.html |
 <!-- specsfy:database:end -->
 
 ## Decisões, ownership e retenção
