@@ -4,6 +4,7 @@ import { JSDOM } from 'jsdom';
 
 const files = ['index.html', 'treino_hibrido_juarez_v3_standalone.html'];
 const equipmentKey = 'treino_hibrido_juarez_v5_equipment';
+const stateKey = 'treino_hibrido_juarez_v5';
 const windows = [];
 
 async function renderWorkout(file, storedEquipment) {
@@ -13,6 +14,7 @@ async function renderWorkout(file, storedEquipment) {
     url: 'http://localhost/',
     beforeParse(window) {
       window.scrollTo = () => {};
+      window.localStorage.setItem(stateKey, JSON.stringify({ profile: { name: 'Legado' }, sessions: [], onboardingSeen: true }));
       if (storedEquipment !== undefined) {
         window.localStorage.setItem(equipmentKey, storedEquipment);
       }

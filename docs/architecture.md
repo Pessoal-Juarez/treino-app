@@ -1,0 +1,22 @@
+# Arquitetura
+
+<!-- specsfy:documentator:start -->
+## Componentes
+
+| Tipo | Quantidade |
+| --- | --- |
+| Código | 21 |
+| Testes | 20 |
+
+## Diagramas
+
+```mermaid
+flowchart TD
+  Application[Aplicação]
+```
+
+```mermaid
+classDiagram
+  class Application
+```
+<!-- specsfy:documentator:end -->

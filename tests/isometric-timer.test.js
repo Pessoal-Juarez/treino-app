@@ -3,9 +3,10 @@ import { afterEach, expect, test } from 'vitest';
 import { JSDOM } from 'jsdom';
 
 const files = ['index.html', 'treino_hibrido_juarez_v3_standalone.html'];
+const stateKey = 'treino_hibrido_juarez_v5';
 const windows = [];
 async function runner(file) {
-  const dom = new JSDOM(await readFile(new URL(`../${file}`, import.meta.url), 'utf8'), { runScripts: 'dangerously', url: 'http://localhost/' });
+  const dom = new JSDOM(await readFile(new URL(`../${file}`, import.meta.url), 'utf8'), { runScripts: 'dangerously', url: 'http://localhost/', beforeParse(window) { window.localStorage.setItem(stateKey, JSON.stringify({ profile: { name: 'Legado' }, sessions: [], onboardingSeen: true })); } });
   dom.window.startWorkoutByKey('segunda');
   dom.window.navigateExercise(6);
   windows.push(dom.window);
