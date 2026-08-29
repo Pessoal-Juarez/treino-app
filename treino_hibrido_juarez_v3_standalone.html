@@ -3361,17 +3361,152 @@ function renderProfileSummary() {
 }
 
 const IMPORTED_WORKOUTS_KEY = 'treino_hibrido_juarez_v5_imported_workouts';
-function openWorkoutImport() {
-  const modal=document.createElement('div'); modal.dataset.workoutImport='true'; modal.style.cssText='position:fixed;inset:0;z-index:1000;padding:16px;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center';
-  const card=document.createElement('div'); card.dataset.importDialog='true'; card.style.cssText='box-sizing:border-box;width:min(100%,360px);padding:20px;border-radius:16px;background:var(--panel);border:1px solid var(--line);display:grid;gap:10px';
-  const text=document.createElement('textarea'); text.dataset.importText='true'; text.style.cssText='box-sizing:border-box;width:100%;max-width:100%;font-size:16px;min-height:120px'; const file=document.createElement('input'); file.type='file'; file.accept='.txt,text/plain'; file.dataset.importFile='true'; file.style.cssText='box-sizing:border-box;width:100%;max-width:100%;font-size:16px'; const result=document.createElement('div'); result.dataset.importResult='true'; file.onchange=()=>{const chosen=file.files[0];if(!chosen||!chosen.name.toLowerCase().endsWith('.txt')){result.textContent='Selecione um arquivo TXT';return;}const reader=new FileReader();reader.onload=()=>{text.value=String(reader.result||'');};reader.readAsText(chosen);};
-  const preview=document.createElement('button'); preview.dataset.importPreview='true'; preview.textContent='Ver prévia'; preview.style.minHeight='44px';
-  const confirm=document.createElement('button'); confirm.dataset.importConfirm='true'; confirm.textContent='Confirmar'; confirm.style.minHeight='44px';
-  const cancel=document.createElement('button'); cancel.dataset.importCancel='true'; cancel.textContent='Cancelar'; cancel.style.minHeight='44px';
-  let draft=null; preview.onclick=()=>{const day=(text.value.match(/Dia:\s*(.+)/i)||[])[1], exercise=(text.value.match(/Exercício:\s*(.+)/i)||[])[1]; if(!day||!exercise){result.textContent='Texto inválido';return;} draft={id:`import-${day.toLowerCase().replace(/\W+/g,'-')}`,label:day,focus:'Importado',duration:'—',warmup:[],exercises:[{id:`import-ex-${Date.now()}`,name:exercise,sets:Number((text.value.match(/Séries:\s*(\d+)/i)||[])[1]||1),reps:(text.value.match(/Reps:\s*(.+)/i)||[])[1]||'—',rest:60,rir:'—',notes:'',video:'#'}]}; result.textContent=`Prévia: ${draft.label} — ${exercise}`;};
-  confirm.onclick=()=>{if(!draft)return; let all=[];try{all=JSON.parse(localStorage.getItem(IMPORTED_WORKOUTS_KEY)||'[]');if(!Array.isArray(all))all=[];}catch{} if(!all.some(x=>x.id===draft.id)){all.push(draft);localStorage.setItem(IMPORTED_WORKOUTS_KEY,JSON.stringify(all));} modal.remove();}; cancel.onclick=()=>modal.remove(); card.append('Importar novo treino',file,text,preview,result,confirm,cancel);modal.append(card);document.body.append(modal);
+const PDFJS_ASSET_ROOT = './vendor/pdfjs-dist-5.4.54';
+
+function readImportFileAsArrayBuffer(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Não foi possível ler o PDF neste dispositivo.'));
+    reader.onload = () => resolve(reader.result);
+    reader.readAsArrayBuffer(file);
+  });
 }
-function getAvailableWorkouts(){let imported=[];try{imported=JSON.parse(localStorage.getItem(IMPORTED_WORKOUTS_KEY)||'[]');}catch{} if(!Array.isArray(imported))imported=[];return {...WORKOUTS,...Object.fromEntries(imported.filter(x=>x&&x.id&&!WORKOUTS[x.id]).map(x=>[x.id,x]))};}
+
+async function getLocalPdfJs() {
+  if (window.pdfjsLib) return window.pdfjsLib;
+  const pdfjs = await import(`${PDFJS_ASSET_ROOT}/pdf.min.mjs`);
+  pdfjs.GlobalWorkerOptions.workerSrc = new URL(`${PDFJS_ASSET_ROOT}/pdf.worker.min.mjs`, location.href).href;
+  window.pdfjsLib = pdfjs;
+  return pdfjs;
+}
+
+async function readWorkoutPdf(file) {
+  const pdfjs = await getLocalPdfJs();
+  const data = await readImportFileAsArrayBuffer(file);
+  const pdf = await pdfjs.getDocument({ data: new Uint8Array(data) }).promise;
+  const pages = [];
+  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+    const page = await pdf.getPage(pageNumber);
+    const content = await page.getTextContent();
+    pages.push(content.items.map(item => item.str || '').join(' '));
+  }
+  const text = pages.join('\n').replace(/\u00a0/g, ' ').replace(/\r\n?/g, '\n').trim();
+  if (!text) throw new Error('O PDF não possui texto selecionável. OCR não é suportado.');
+  return text;
+}
+
+function openWorkoutImport() {
+  const modal = document.createElement('div');
+  modal.dataset.workoutImport = 'true';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:1000;padding:16px;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center';
+  const card = document.createElement('div');
+  card.dataset.importDialog = 'true';
+  card.style.cssText = 'box-sizing:border-box;width:min(100%,360px);padding:20px;border-radius:16px;background:var(--panel);border:1px solid var(--line);display:grid;gap:10px';
+  const text = document.createElement('textarea');
+  text.dataset.importText = 'true';
+  text.style.cssText = 'box-sizing:border-box;width:100%;max-width:100%;font-size:16px;min-height:120px';
+  const file = document.createElement('input');
+  file.type = 'file';
+  file.accept = '.txt,text/plain,.pdf,application/pdf';
+  file.dataset.importFile = 'true';
+  file.dataset.importPdf = 'true';
+  file.style.cssText = 'box-sizing:border-box;width:100%;max-width:100%;font-size:16px';
+  const result = document.createElement('div');
+  result.dataset.importResult = 'true';
+  const pdfError = document.createElement('div');
+  pdfError.dataset.importPdfError = 'true';
+  pdfError.setAttribute('role', 'alert');
+
+  file.onchange = async () => {
+    const chosen = file.files[0];
+    const filename = chosen?.name?.toLowerCase() || '';
+    pdfError.textContent = '';
+    if (filename.endsWith('.txt')) {
+      const reader = new FileReader();
+      reader.onload = () => { text.value = String(reader.result || ''); };
+      reader.onerror = () => { result.textContent = 'Não foi possível ler o arquivo TXT.'; };
+      reader.readAsText(chosen);
+      return;
+    }
+    if (!filename.endsWith('.pdf')) {
+      result.textContent = 'Selecione um arquivo TXT ou PDF.';
+      return;
+    }
+    try {
+      text.value = await readWorkoutPdf(chosen);
+      result.textContent = 'Texto extraído localmente do PDF. Revise a prévia antes de confirmar.';
+    } catch {
+      pdfError.textContent = 'Não foi possível ler este PDF. Arquivos criptografados ou sem texto não são compatíveis.';
+      result.textContent = '';
+    }
+  };
+
+  const preview = document.createElement('button');
+  preview.dataset.importPreview = 'true';
+  preview.textContent = 'Ver prévia';
+  preview.style.minHeight = '44px';
+  const confirm = document.createElement('button');
+  confirm.dataset.importConfirm = 'true';
+  confirm.textContent = 'Confirmar';
+  confirm.style.minHeight = '44px';
+  const cancel = document.createElement('button');
+  cancel.dataset.importCancel = 'true';
+  cancel.textContent = 'Cancelar';
+  cancel.style.minHeight = '44px';
+
+  let draft = null;
+  preview.onclick = () => {
+    const normalized = text.value.replace(/\r\n?/g, '\n').trim();
+    const day = (normalized.match(/Dia:\s*(.+)/i) || [])[1];
+    const exercise = (normalized.match(/Exercício:\s*(.+)/i) || [])[1];
+    if (!day || !exercise) {
+      result.textContent = 'Texto inválido';
+      return;
+    }
+    draft = {
+      id: `import-${day.toLowerCase().replace(/\W+/g, '-')}`,
+      label: day,
+      focus: 'Importado',
+      duration: '—',
+      warmup: [],
+      exercises: [{
+        id: `import-ex-${Date.now()}`,
+        name: exercise,
+        sets: Number((normalized.match(/Séries:\s*(\d+)/i) || [])[1] || 1),
+        reps: (normalized.match(/Reps:\s*(.+)/i) || [])[1] || '—',
+        rest: 60,
+        rir: '—',
+        notes: '',
+        video: '#',
+      }],
+    };
+    result.textContent = `Prévia: ${draft.label} — ${exercise}`;
+  };
+  confirm.onclick = () => {
+    if (!draft) return;
+    let all = [];
+    try {
+      all = JSON.parse(localStorage.getItem(IMPORTED_WORKOUTS_KEY) || '[]');
+      if (!Array.isArray(all)) all = [];
+    } catch { }
+    if (!all.some(item => item.id === draft.id)) {
+      all.push(draft);
+      localStorage.setItem(IMPORTED_WORKOUTS_KEY, JSON.stringify(all));
+    }
+    modal.remove();
+  };
+  cancel.onclick = () => modal.remove();
+  card.append('Importar novo treino', file, text, preview, result, pdfError, confirm, cancel);
+  modal.append(card);
+  document.body.append(modal);
+}
+
+function getAvailableWorkouts() {
+  let imported = [];
+  try { imported = JSON.parse(localStorage.getItem(IMPORTED_WORKOUTS_KEY) || '[]'); } catch { }
+  if (!Array.isArray(imported)) imported = [];
+  return { ...WORKOUTS, ...Object.fromEntries(imported.filter(item => item && item.id && !WORKOUTS[item.id]).map(item => [item.id, item])) };
+}
 /* SERVICE WORKER */
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
   window.addEventListener("load", () => {
