@@ -58,7 +58,7 @@ Como Juarez, quero ajustar e iniciar uma prancha, para completar a série com te
 Scenario: Exibir tempo de série
  Given que prancha é o exercício ativo
  When o runner renderiza
- Then o cartão fica após o vídeo e antes do último registro com ajuste e play
+Then o cartão fica imediatamente antes de Séries Realizadas e runnerSetsContainer, após equipamento, último registro e descanso
 ```
 #### AC-002 — Ajuste e controle
 **Cobre**: US-001, FR-001, NFR-001
@@ -111,6 +111,8 @@ Scenario: Limpar ao trocar de exercício
 | FR-001, NFR-001 | AC-002 | Integração JSDOM | `tests/isometric-timer.test.js` | Passed — ajuste 45→50, tick para 49, pausa e descanso inalterado. |
 | FR-001, NFR-001 | AC-003 | Integração JSDOM | `tests/isometric-timer.test.js` | Passed — troca oculta o cartão; regressão 69/69 e paridade aprovadas. |
 ### 13. Validações
+- Follow-up DEC-002: RED focal em 2026-08-29, `tests/isometric-timer.test.js`, exit 1 com 2 falhas: o próximo irmão do cartão era Configuração do equipamento, não Séries Realizadas; GREEN após mover somente o cartão nos dois HTMLs, focal 6/6 exit 0 e regressão sem Partitura 69/69 exit 0. Definition reaberta e revisada: `VALID DRAFT`; `Reviews: PASSED`.
+- Visual DEC-002: portal real iOS 390×844 confirmou equipamento → última carga → descanso → isometria → séries e alvos 44 px; screenshot do portal indisponível por janela minimizada. Evidência material equivalente: `research/2026-08-29-isometric-position-ios-390x844.png`, gerada localmente por navegador headless e verificada em 390×844.
 - Definition: Passed em 2026-08-29 — `validate_spec.mjs specs/draft/0007-temporizador-isometria-por-serie/spec.md --allow-draft` retornou `VALID DRAFT`; revisão PROD/ARCH/SEC não encontrou P1 aberto. Cobertura: US-001, FR-001 e NFR-001 possuem AC-001 a AC-003.
 - Plan: Passed em 2026-08-29 — `validate_tasks.mjs specs/defined/0007-temporizador-isometria-por-serie/spec.md --allow-draft` retornou `VALID DRAFT` com 5/5 tarefas e 25/25 checklists.
 - Delivery: Passed em 2026-08-29 — focal 6/6; regressão local 69/69; aceite Passed; full-chain 6/6 OK; evidence strict Passed; reviews Passed; docs check e monitor CURRENT; paridade, diff e portal iOS 390×844 aprovados.
@@ -158,6 +160,7 @@ Scenario: Limpar ao trocar de exercício
 - Suposição aprovada: ajuste efêmero e 45 s inicial.
 ### 17. Decisões
 - **DEC-001**: cartão próprio após vídeo, 45 s, ajuste por série e play/pausa; descanso separado — Codex – Procurador, 2026-08-29.
+- **DEC-002**: mudança tardia aprovada por Juarez em 2026-08-29: mover somente o cartão para imediatamente antes de Séries Realizadas e `#runnerSetsContainer`, após equipamento, última carga e descanso; preservar comportamento existente. A auditoria de impacto automática não executou pois o processo filho não localizou Git; `git.exe` e inspeção DOM foram usados como evidência manual.
 ### 18. Definition of Done
-- [x] Definition, Plan e Delivery Gates Passed.
+- [x] Definition, Plan e Delivery Gates Passed após DEC-002: focal 6/6, regressão 69/69, acceptance/evidence strict/reviews/monitor/rastreabilidade focal e visual 390×844 aprovados.
 - [x] ACs, requisitos, tarefas, testes e checks possuem evidência.

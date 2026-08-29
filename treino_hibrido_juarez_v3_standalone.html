@@ -930,11 +930,6 @@ a { color: var(--neon); text-decoration: none; }
     <a class="exercise-video-link" id="runnerVideoLink" href="#" target="_blank" rel="noopener">
       <span>▶ Ver Execução Correta</span>
     </a>
-    <section class="integrated-timer-card" data-isometric-timer style="display:none;border-color:rgba(212,255,50,.32)">
-      <div class="timer-state-label">Tempo da série</div>
-      <div class="timer-big-display" data-isometric-display>00:45</div>
-      <div class="timer-quick-actions"><button class="btn-timer-ctrl" data-isometric-adjust type="button" style="min-height:44px">Ajustar · 45 s</button><button class="btn-timer-ctrl primary" data-isometric-play type="button" style="min-height:44px">▶ Iniciar série</button></div>
-    </section>
     <div class="last-performance-badge" data-equipment-summary style="display:block;background:var(--panel);border-color:var(--line);border-style:solid;border-width:1px;border-radius:16px">
       <div class="badge-content" style="width:100%">
         <div class="badge-title">
@@ -968,6 +963,12 @@ a { color: var(--neon); text-decoration: none; }
         <button class="btn-timer-ctrl" onclick="skipRunnerRest()">Pular</button>
       </div>
     </div>
+
+    <section class="integrated-timer-card" data-isometric-timer style="display:none;border-color:rgba(212,255,50,.32)">
+      <div class="timer-state-label">Tempo da série</div>
+      <div class="timer-big-display" data-isometric-display>00:45</div>
+      <div class="timer-quick-actions"><button class="btn-timer-ctrl" data-isometric-adjust type="button" style="min-height:44px">Ajustar · 45 s</button><button class="btn-timer-ctrl primary" data-isometric-play type="button" style="min-height:44px">▶ Iniciar série</button></div>
+    </section>
 
     <!-- SETS INPUT LIST -->
     <div style="font-weight:700;font-size:0.9rem;margin-bottom:8px;color:var(--text);">Séries Realizadas:</div>

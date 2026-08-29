@@ -19,6 +19,8 @@ for (const file of files) {
     const card = document.querySelector('[data-isometric-timer]');
     expect(card).not.toBeNull();
     expect(document.querySelector('#runnerVideoLink').compareDocumentPosition(card) & document.defaultView.Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(card.nextElementSibling.textContent).toContain('Séries Realizadas:');
+    expect(card.nextElementSibling.nextElementSibling.id).toBe('runnerSetsContainer');
   });
   // SPECSFY: US-001 FR-001 NFR-001 AC-002
   test(`${file} starts and pauses the adjusted isometric duration without rest`, async () => {
