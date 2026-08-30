@@ -1225,6 +1225,8 @@ let runnerTotalClockInterval = null;
 /* AUDIO & SENSORS */
 let audioCtx = null;
 let wakeLockSentinel = null;
+let wakeLockRequest = null;
+let wakeLockGeneration = 0;
 
 function deepClone(x) { return JSON.parse(JSON.stringify(x)); }
 function createFreshState() {
@@ -2176,21 +2178,41 @@ function clearWakeLockSentinel(sentinel) {
   if (wakeLockSentinel === sentinel) wakeLockSentinel = null;
 }
 
+async function releaseWakeLockSentinel(sentinel) {
+  if (sentinel) { try { await sentinel.release(); } catch(e){} }
+}
+
 async function toggleWakeLock(enabled) {
   if (!enabled) {
+    wakeLockGeneration += 1;
     const sentinel = wakeLockSentinel;
     wakeLockSentinel = null;
-    if (sentinel) { try { await sentinel.release(); } catch(e){} }
+    await releaseWakeLockSentinel(sentinel);
     return;
   }
   if (wakeLockSentinel && !wakeLockSentinel.released) return;
+  const generation = wakeLockGeneration;
+  if (wakeLockRequest) {
+    await wakeLockRequest;
+    return generation === wakeLockGeneration ? toggleWakeLock(true) : null;
+  }
   try {
     if ('wakeLock' in navigator) {
-      const sentinel = await navigator.wakeLock.request('screen');
-      wakeLockSentinel = sentinel;
-      if (sentinel && typeof sentinel.addEventListener === 'function') {
-        sentinel.addEventListener('release', () => clearWakeLockSentinel(sentinel), { once: true });
-      }
+      const request = (async () => {
+        const sentinel = await navigator.wakeLock.request('screen');
+        if (generation !== wakeLockGeneration) {
+          await releaseWakeLockSentinel(sentinel);
+          return null;
+        }
+        wakeLockSentinel = sentinel;
+        if (sentinel && typeof sentinel.addEventListener === 'function') {
+          sentinel.addEventListener('release', () => clearWakeLockSentinel(sentinel), { once: true });
+        }
+        return sentinel;
+      })();
+      wakeLockRequest = request;
+      try { return await request; }
+      finally { if (wakeLockRequest === request) wakeLockRequest = null; }
     }
   } catch(e) {}
 }

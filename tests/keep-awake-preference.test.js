@@ -142,6 +142,42 @@ for (const file of variants) {
     dom.window.close();
   });
 
+  // SPECSFY: US-001 FR-001 NFR-001 AC-003
+  test(`${file} releases every pending Wake Lock acquisition when leaving concurrently`, async () => {
+    let requests = 0; let releases = 0;
+    const pending = []; const sentinels = [];
+    const dom = await openApp(file, { beforeParse(window) {
+      Object.defineProperty(window.navigator, 'wakeLock', { configurable: true, value: { request: () => {
+        requests += 1;
+        return new Promise(resolve => pending.push(() => {
+          const sentinel = new window.EventTarget();
+          sentinel.released = false;
+          sentinel.release = async () => {
+            releases += 1;
+            sentinel.released = true;
+            sentinel.dispatchEvent(new window.Event('release'));
+          };
+          sentinels.push(sentinel);
+          resolve(sentinel);
+        }));
+      } } });
+    } });
+
+    const first = dom.window.toggleWakeLock(true);
+    const second = dom.window.toggleWakeLock(true);
+    expect(requests).toBeGreaterThan(0);
+    await dom.window.toggleWakeLock(false);
+    pending.forEach(resolve => resolve());
+    await Promise.all([first, second]);
+    await waitFor(
+      () => sentinels.length === requests && sentinels.every(sentinel => sentinel.released),
+      'release of every acquisition that resolved after exit',
+    );
+    expect(releases).toBe(requests);
+    expect(dom.window.eval('wakeLockSentinel')).toBeNull();
+    dom.window.close();
+  });
+
   // SPECSFY: US-001 FR-001 FR-002 FR-003 NFR-001 AC-003
   test(`${file} keeps the preference and UI usable without or after rejected Wake Lock`, async () => {
     const unsupported = await openApp(file);
