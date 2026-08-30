@@ -2193,7 +2193,7 @@ async function toggleWakeLock(enabled) {
   if (wakeLockSentinel && !wakeLockSentinel.released) return;
   const generation = wakeLockGeneration;
   if (wakeLockRequest) {
-    await wakeLockRequest;
+    try { await wakeLockRequest; } catch(e) { return null; }
     return generation === wakeLockGeneration ? toggleWakeLock(true) : null;
   }
   try {

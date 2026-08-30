@@ -178,6 +178,46 @@ for (const file of variants) {
     dom.window.close();
   });
 
+  // SPECSFY: US-001 FR-001 NFR-001 AC-003
+  test(`${file} resolves concurrent rejected acquisition safely and can retry`, async () => {
+    let requests = 0; let releases = 0; let rejectSharedRequest; let retrySentinel;
+    const unhandled = [];
+    const dom = await openApp(file, { beforeParse(window) {
+      Object.defineProperty(window.navigator, 'wakeLock', { configurable: true, value: { request: () => {
+        requests += 1;
+        if (requests === 1) return new Promise((resolve, reject) => { rejectSharedRequest = reject; });
+        retrySentinel = new window.EventTarget();
+        retrySentinel.released = false;
+        retrySentinel.release = async () => {
+          releases += 1;
+          retrySentinel.released = true;
+          retrySentinel.dispatchEvent(new window.Event('release'));
+        };
+        return Promise.resolve(retrySentinel);
+      } } });
+    } });
+    dom.window.addEventListener('unhandledrejection', event => {
+      unhandled.push(event.reason);
+      event.preventDefault();
+    });
+
+    const first = dom.window.toggleWakeLock(true);
+    const second = dom.window.toggleWakeLock(true);
+    rejectSharedRequest(new Error('permission denied'));
+    const outcomes = await Promise.allSettled([first, second]);
+    await new Promise(resolve => setTimeout(resolve, 0));
+    expect(outcomes.map(outcome => outcome.status)).toEqual(['fulfilled', 'fulfilled']);
+    expect(unhandled).toEqual([]);
+    expect(dom.window.eval('wakeLockRequest')).toBeNull();
+    await dom.window.toggleWakeLock(true);
+    expect(requests).toBe(2);
+    expect(dom.window.eval('wakeLockSentinel')).toBe(retrySentinel);
+    await dom.window.toggleWakeLock(false);
+    expect(releases).toBe(1);
+    expect(dom.window.eval('wakeLockSentinel')).toBeNull();
+    dom.window.close();
+  });
+
   // SPECSFY: US-001 FR-001 FR-002 FR-003 NFR-001 AC-003
   test(`${file} keeps the preference and UI usable without or after rejected Wake Lock`, async () => {
     const unsupported = await openApp(file);
