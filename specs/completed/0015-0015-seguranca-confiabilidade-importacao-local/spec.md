@@ -5,7 +5,7 @@
 | Formato | Specsfy/2.0 |
 | ID | SPEC-0015 |
 | Slug | 0015-0015-seguranca-confiabilidade-importacao-local |
-| Status | Planned |
+| Status | Complete |
 | Effort | 7 |
 | Effort updated at | 2026-08-29 |
 | Effort rationale | Quatro regressões de segurança, persistência, ciclo de vida e PWA em fontes HTML compartilhadas. |
@@ -13,7 +13,7 @@
 | Milestones | |
 | Definition Gate | Passed |
 | Plan Gate | Passed |
-| Delivery Gate | Pending |
+| Delivery Gate | Passed |
 | Evidence Contract | 1 |
 | Atualizada em | 2026-08-29 |
 
@@ -287,9 +287,9 @@ tests/service-worker-offline.test.js
 
 #### Gate do Ato III — Entrega
 
-- **Resultado**: Pending.
-- **Comando**: focais, integral, aceite, full-chain, paridade, documentação, monitor e diff.
-- **Achados**: integral deste terminal: 166 testes de produto verdes; 4 falhas externas da Partitura pois não é Maestro.
+- **Resultado**: Passed.
+- **Comando**: focais, `npm run test:tdd`, aceite, full-chain, paridade, documentação, monitor e diff.
+- **Achados**: 2026-08-29 — produto local: 20 arquivos e 169 testes verdes; evidência independente no terminal Maestro: `npm run test:tdd` exit 0, 22 arquivos e 182 testes; parecer independente Ready; HTMLs byte-idênticos com 111851 bytes; `git diff --check origin/main..HEAD` OK. Neste terminal, quatro falhas da Partitura seguem externas por ausência do papel Maestro e não invalidam a evidência integral independente.
 
 ### 14. Tarefas
 
@@ -348,13 +348,13 @@ tests/service-worker-offline.test.js
 - [x] T009 [DOC] Documentar e verificar gates em `specs/draft/0015-0015-seguranca-confiabilidade-importacao-local/spec.md` — Refs: US-001, FR-001, NFR-001, AC-001, AC-002, AC-003, AC-004 — Depends: T005, T006, T007, T008
   - [x] **PREP**: suites/checks identificados.
   - [x] **EXECUTE**: docs e adendos históricos atualizados.
-  - [x] **VERIFY**: focais 58/58; produto 166 verde; Partitura externa indisponível neste terminal.
-  - [x] **EVIDENCE**: monitor CURRENT, documentação check e paridade exit 0.
+  - [x] **VERIFY**: focais atuais 14/14; produto local 169/169; integral independente no Maestro 22 arquivos/182 testes, exit 0.
+  - [x] **EVIDENCE**: parecer independente Ready, monitor CURRENT, documentação check, aceite/full-chain/reviews e paridade de 111851 bytes.
   - [x] **IMPROVE**: contrato offline local determinístico, sem portal adicional.
 - [x] T010 [TEST] [TDD] [US-001] Reproduzir e impedir divergência binária em `tests/html-byte-parity.test.js` — Refs: US-001, FR-001, NFR-001, AC-001 — Depends: T005
   - [x] **PREP**: comparação por bytes e offset 91097 confirmados; `git diff --no-index` normaliza CRLF e não é oráculo suficiente.
   - [x] **EXECUTE**: teste lê Buffers sem normalização; após o RED do onboarding, `.gitattributes` fixa LF para ambas as variantes e a normalização mecânica preservou o conteúdo textual.
-  - [x] **VERIFY**: RED exit 1 com `Buffer.compare=-1` e onboarding 21/22 sob CRLF; GREEN exit 0, onboarding 22/22 e ambos medem 110659 bytes.
+  - [x] **VERIFY**: RED exit 1 com `Buffer.compare=-1` e onboarding 21/22 sob CRLF; GREEN exit 0, onboarding 22/22 e ambos medem 111851 bytes.
   - [x] **EVIDENCE**: `npm run test:tdd -- tests/html-byte-parity.test.js --reporter=dot --testTimeout=5000`, exit 0.
   - [x] **IMPROVE**: o oráculo binário impede novo falso positivo por normalização de final de linha.
 
@@ -389,10 +389,10 @@ tests/service-worker-offline.test.js
 
 ### 18. Definition of Done
 
-- [ ] `Definition Gate` está `Passed`.
+- [x] `Definition Gate` está `Passed`.
 - [x] `Plan Gate` está `Passed`.
-- [ ] `Delivery Gate` está `Passed`.
+- [x] `Delivery Gate` está `Passed`.
 - [x] Todos os cenários AC têm RED e GREEN focais.
 - [x] Todos os requisitos possuem evidência de verificação.
 - [x] Todas as tarefas na seção 14 estão concluídas.
-- [ ] Testes, checks estáticos, rastreabilidade, documentação, paridade e monitor disponíveis passam.
+- [x] Testes, checks estáticos, rastreabilidade, documentação, paridade e monitor disponíveis passam.
