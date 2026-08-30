@@ -8,6 +8,8 @@ uma. Preserve decisões humanas nas seções livres deste arquivo.
 <!-- specsfy:stack:start -->
 | Camada | Tecnologia | Evidência |
 | --- | --- | --- |
+| Testes | Vitest | `package.json` (`vitest`) |
+| Runtime | Node.js | `package.json` |
 | Interface / Aplicação | HTML5 + CSS3 + Vanilla JavaScript | index.html, 	reino_hibrido_juarez_v3_standalone.html |
 | PWA / Offline | Service Worker + Web Manifest | sw.js, manifest.webmanifest |
 | Armazenamento Local | LocalStorage API | index.html (chaves de treino e histórico) |

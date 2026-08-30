@@ -10,7 +10,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
-<title>Treino Híbrido — Juarez</title>
+<title>Meu Treino</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
@@ -46,6 +46,31 @@
 html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: var(--font-main); -webkit-font-smoothing: antialiased; }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; border: none; outline: none; }
+.setup-import-control {
+  min-height: 44px !important;
+  padding: 10px 12px;
+  border: 1px solid #73808c !important;
+  border-radius: 10px;
+  background-color: #f3f7fa !important;
+  color: #090d12 !important;
+  font-size: 16px !important;
+}
+.setup-import-control:focus {
+  outline: 2px solid #2a6f97;
+  outline-offset: 2px;
+}
+.setup-import-control:disabled {
+  background-color: #f3f7fa !important;
+  color: #090d12 !important;
+  cursor: not-allowed;
+  opacity: .6;
+}
+select.setup-import-control option.setup-import-control {
+  min-height: 44px !important;
+  background-color: #f3f7fa !important;
+  color: #090d12 !important;
+  font-size: 16px !important;
+}
 a { color: var(--neon); text-decoration: none; }
 
 .app-wrapper {
@@ -568,6 +593,16 @@ a { color: var(--neon); text-decoration: none; }
   border-color: var(--neon);
   box-shadow: 0 0 0 2px var(--neon-glow);
 }
+.series-load-suffix {
+  position: absolute;
+  right: 12px;
+  bottom: 11px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  pointer-events: none;
+}
+.set-input-group--load input { padding-right: 2.6rem; }
 .btn-check-set {
   width: 42px;
   height: 42px;
@@ -763,7 +798,7 @@ a { color: var(--neon); text-decoration: none; }
     <div class="user-profile">
       <div class="avatar">J</div>
       <div>
-        <div class="user-greeting">Olá, Juarez!</div>
+        <div class="user-greeting">Olá!</div>
         <div class="user-name">Treino Híbrido</div>
       </div>
     </div>
@@ -852,9 +887,22 @@ a { color: var(--neon); text-decoration: none; }
           <button class="btn-timer-ctrl" style="padding:12px;" onclick="exportHtmlReport()">📄 Baixar Relatório .html</button>
         </div>
       </div>
-      
+
+      <div class="card-section">
+        <h3>Importar novo treino</h3><p style="font-size:.86rem;color:var(--muted)">TXT ou texto colado, processado só neste dispositivo.</p>
+        <button class="btn-timer-ctrl" data-workout-import onclick="openWorkoutImport()" style="width:100%;min-height:44px">Importar novo treino</button>
+      </div>
+
       <div class="card-section">
         <h3>Configurações de Alerta</h3>
+        <div class="form-row">
+          <label for="alarmSoundPreset">Som do Alarme</label>
+          <select id="alarmSoundPreset" onchange="updateAlarmSoundPreset(this.value)" style="font-size:16px;min-height:44px;">
+            <option value="triple-high">Alto</option>
+            <option value="pulse-high">Pulsado</option>
+            <option value="double-rise">Duplo</option>
+          </select>
+        </div>
         <div class="form-row">
           <label>Volume do Alarme Sonoro</label>
           <input type="range" id="soundVolume" min="0.1" max="1.0" step="0.1" value="0.9" onchange="updateAudioVolume(this.value)">
@@ -863,11 +911,22 @@ a { color: var(--neon); text-decoration: none; }
           <span>Vibração Tátil</span>
           <input type="checkbox" id="vibrateToggle" checked style="width:auto;">
         </div>
+        <div class="form-row">
+          <label for="vibrationLevel">Nível de vibração</label>
+          <select id="vibrationLevel" onchange="updateVibrationLevel(this.value)" style="font-size:16px;min-height:44px;">
+            <option value="vibration-short">Curto</option>
+            <option value="vibration-standard">Padrão</option>
+            <option value="vibration-long">Longo</option>
+          </select>
+        </div>
         <div class="form-row" style="display:flex;align-items:center;justify-content:space-between;">
           <span>Manter Tela Ligada no Treino</span>
-          <input type="checkbox" id="keepAwakeToggle" onchange="toggleWakeLock(this.checked)" style="width:auto;">
+          <input type="checkbox" id="keepAwakeToggle" onchange="updateKeepAwakePreference(this.checked)" style="width:44px;height:44px;min-width:44px;min-height:44px;">
         </div>
-        <button class="btn-timer-ctrl" onclick="testAudioAlarm()" style="width:100%;margin-top:10px;">🔊 Testar Som e Vibração Agora</button>
+        <button class="btn-timer-ctrl" data-onboarding-review onclick="openOnboardingIntroduction()" style="width:100%;min-height:44px;margin-top:10px;">Editar perfil e treino</button>
+        <button class="btn-timer-ctrl" data-first-use-feedback-open onclick="openFirstUseFeedback()" style="width:100%;min-height:44px;margin-top:10px;">Responder feedback</button>
+        <button class="btn-timer-ctrl" data-first-use-feedback-share hidden onclick="shareFirstUseFeedback()" style="width:100%;min-height:44px;margin-top:10px;">Compartilhar feedback</button>
+        <button class="btn-timer-ctrl" onclick="testAudioAlarm()" style="width:100%;margin-top:10px;">🔊 Testar Som Agora</button>
       </div>
 
       <div class="card-section">
@@ -878,6 +937,19 @@ a { color: var(--neon); text-decoration: none; }
     </section>
 
   </main>
+
+  <section data-onboarding-overlay hidden aria-modal="true" aria-label="Configuração inicial" style="position:fixed;inset:0;z-index:1300;display:grid;place-items:center;padding:20px;background:rgba(9,13,18,.92);">
+    <div style="width:min(100%,350px);max-height:calc(100vh - 40px);overflow:auto;padding:20px;border:1px solid var(--line);border-radius:16px;background:var(--panel);box-shadow:var(--shadow);">
+      <h2 style="margin:0 0 8px;">Configure seu treino</h2>
+      <p style="margin:0;color:var(--muted);font-size:16px;line-height:1.5;">Informe apenas o que quiser e importe o seu próprio treino para começar.</p>
+      <div data-onboarding-profile style="margin-top:14px;display:grid;gap:10px;">
+        <label style="font-size:16px">Nome ou apelido (opcional)<input class="setup-import-control" data-onboarding-name style="width:100%;min-height:44px" /></label>
+        <label style="font-size:16px">Objetivo<select class="setup-import-control" data-onboarding-goal style="width:100%;min-height:44px"><option class="setup-import-control">Força</option><option class="setup-import-control">Ganho de massa</option><option class="setup-import-control">Condicionamento</option><option class="setup-import-control">Mobilidade/saúde geral</option><option class="setup-import-control">Outro</option></select></label>
+        <button class="btn-timer-ctrl setup-import-control" data-onboarding-import-own style="min-height:44px">Importar meu treino</button>
+        <button class="btn-timer-ctrl setup-import-control" data-onboarding-continue style="min-height:44px">Continuar depois</button>
+      </div>
+    </div>
+  </section>
 
   <!-- BOTTOM NAVIGATION BAR -->
   <nav class="bottom-nav">
@@ -931,6 +1003,17 @@ a { color: var(--neon); text-decoration: none; }
       <span>▶ Ver Execução Correta</span>
     </a>
 
+
+    <div class="last-performance-badge" data-equipment-summary style="display:block;background:var(--panel);border-color:var(--line);border-style:solid;border-width:1px;border-radius:16px">
+      <div class="badge-content" style="width:100%">
+        <div class="badge-title">
+          Configuração do equipamento
+          <button type="button" data-action="edit" style="float:right;background:var(--neon);color:var(--bg);border:0;border-radius:12px;min-height:44px;padding:4px 12px;font:inherit;font-weight:800">Editar</button>
+        </div>
+        <div id="runnerEquipmentPairs" class="badge-record"></div>
+      </div>
+    </div>
+
     <!-- LAST SESSION RECORD BADGE -->
     <div class="last-performance-badge" id="runnerLastRecordBadge">
       <div class="badge-star">⭐</div>
@@ -954,6 +1037,12 @@ a { color: var(--neon); text-decoration: none; }
         <button class="btn-timer-ctrl" onclick="skipRunnerRest()">Pular</button>
       </div>
     </div>
+
+    <section class="integrated-timer-card" data-isometric-timer style="display:none;border-color:rgba(212,255,50,.32)">
+      <div class="timer-state-label">Tempo da série</div>
+      <div class="timer-big-display" data-isometric-display>00:45</div>
+      <div class="timer-quick-actions"><button class="btn-timer-ctrl" data-isometric-adjust type="button" style="min-height:44px">Ajustar · 45 s</button><button class="btn-timer-ctrl primary" data-isometric-play type="button" style="min-height:44px">▶ Iniciar série</button></div>
+    </section>
 
     <!-- SETS INPUT LIST -->
     <div style="font-weight:700;font-size:0.9rem;margin-bottom:8px;color:var(--text);">Séries Realizadas:</div>
@@ -1025,7 +1114,7 @@ a { color: var(--neon); text-decoration: none; }
     </div>
     <div class="form-row">
       <label>Horas de Sono</label>
-      <input type="text" id="finishSleepHours" placeholder="Ex: 7,5">
+      <input type="text" id="finishSleepHours" inputmode="decimal" placeholder="Ex: 7,5">
     </div>
     <div class="form-row">
       <label>Observações / Como se sentiu</label>
@@ -1052,7 +1141,7 @@ const WORKOUTS = {
       {"id": "ex-rem-artic", "name": "Remada articulada com apoio no peito", "sets": 2, "reps": "8–10", "rest": 75, "rir": "2", "notes": "Cotovelos guiam o movimento; não tire o peito do apoio.", "video": "https://www.youtube.com/results?search_query=remada+articulada+apoio+no+peito+execucao+correta"},
       {"id": "ex-tri-corda", "name": "Tríceps na corda", "sets": 2, "reps": "10–12", "rest": 45, "rir": "1–2", "notes": "Pode alternar com rosca martelo.", "video": "https://www.youtube.com/results?search_query=triceps+corda+execucao+correta"},
       {"id": "ex-rosca-mart", "name": "Rosca martelo", "sets": 2, "reps": "10–12", "rest": 60, "rir": "1–2", "notes": "Sem balançar o tronco; descida controlada.", "video": "https://www.youtube.com/watch?v=J_I6MVH2v4E"},
-      {"id": "ex-prancha", "name": "Prancha nos antebraços", "sets": 2, "reps": "40–60 s", "rest": 30, "rir": "—", "notes": "Glúteos e abdômen contraídos; sem afundar a lombar.", "video": "https://www.youtube.com/watch?v=Yu0wjtD5FkU"}
+      {"id": "ex-prancha", "name": "Prancha nos antebraços", "sets": 2, "reps": "40–60 s", "rest": 30, "isometric": true, "rir": "—", "notes": "Glúteos e abdômen contraídos; sem afundar a lombar.", "video": "https://www.youtube.com/watch?v=Yu0wjtD5FkU"}
     ]
   },
   "terca": {
@@ -1111,1297 +1200,212 @@ const WORKOUTS = {
 };
 
 const DEFAULT_STATE = {
-  "profile": {
-    "name": "Juarez Silva",
-    "height_cm": 170,
-    "weight_kg": 79,
-    "waist_cm": 98,
-    "chest_cm": 103,
-    "pullups": 5,
-    "plank_sec": 60,
-    "bike_daily_km": 9,
-    "goal": "Reduzir cintura e gordura abdominal, ganhar massa com prioridade em peito, costas e braços, aumentar barras, energia, força, mobilidade e capacidade atlética."
-  },
-  "sessions": [
-    {
-      "id": "s-2026-07-20",
-      "date": "2026-07-20",
-      "dayKey": "segunda",
-      "status": "Concluído",
-      "readiness": "Verde",
-      "durationSeconds": 0,
-      "sleepHours": "",
-      "sleepQuality": "",
-      "energy": "",
-      "pain": "0",
-      "notes": "Sessão de retorno. O primeiro exercício foi registrado como “remada vertical”; confirmar depois o nome exato do aparelho.",
-      "exercises": [
-        {
-          "name": "Remada vertical (confirmar aparelho)",
-          "sets": [
-            {
-              "weight": "45 kg",
-              "reps": "12"
-            },
-            {
-              "weight": "55 kg",
-              "reps": "6"
-            }
-          ]
-        },
-        {
-          "name": "Puxada frontal",
-          "sets": [
-            {
-              "weight": "40 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "33 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "33 kg",
-              "reps": "10"
-            }
-          ]
-        },
-        {
-          "name": "Supino inclinado",
-          "sets": [
-            {
-              "weight": "10 kg de cada lado",
-              "reps": "10"
-            },
-            {
-              "weight": "14 kg de cada lado",
-              "reps": "8"
-            },
-            {
-              "weight": "14 kg de cada lado",
-              "reps": "10"
-            }
-          ]
-        },
-        {
-          "name": "Puxada articulada",
-          "sets": [
-            {
-              "weight": "20 kg de cada lado",
-              "reps": "10"
-            },
-            {
-              "weight": "20 kg de cada lado",
-              "reps": "8"
-            }
-          ]
-        },
-        {
-          "name": "Tríceps",
-          "sets": [
-            {
-              "weight": "10 kg",
-              "reps": "12"
-            },
-            {
-              "weight": "12 kg",
-              "reps": "12"
-            }
-          ]
-        },
-        {
-          "name": "Rosca martelo",
-          "sets": [
-            {
-              "weight": "15 kg",
-              "reps": "12"
-            },
-            {
-              "weight": "15 kg",
-              "reps": "10"
-            }
-          ]
-        },
-        {
-          "name": "Prancha",
-          "sets": [
-            {
-              "weight": "peso corporal",
-              "reps": "40 s"
-            },
-            {
-              "weight": "peso corporal",
-              "reps": "40 s"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "s-2026-07-21",
-      "date": "2026-07-21",
-      "dayKey": "terca",
-      "status": "Não treinou",
-      "readiness": "Vermelho",
-      "durationSeconds": 0,
-      "sleepHours": "aprox. 6–7 na cama, sono não restaurador",
-      "sleepQuality": "1",
-      "energy": "2",
-      "pain": "0",
-      "notes": "Foi deitar cedo, mas colocou Aurora para dormir e ela deu trabalho. Depois das 23h não conseguiu pegar no sono direito. Acordou às 6h sem descanso, tentou dormir novamente e levantou por volta de 8h30 para trabalhar.",
-      "exercises": []
-    },
-    {
-      "id": "s-2026-07-22",
-      "date": "2026-07-22",
-      "dayKey": "quarta",
-      "status": "Concluído",
-      "readiness": "Verde",
-      "durationSeconds": 2966,
-      "sleepHours": "7,5",
-      "sleepQuality": "5",
-      "energy": "4",
-      "pain": "3",
-      "notes": "Ô, sono hoje foi muito bom. Eu acho que eu demorei mais o treino total porque eu estava ainda aprendendo os locais, os equipamentos e também precisei de ajuda em alguns, como a barra assistida, porque tem que colocar peso para ficar mais leve. Então quanto mais peso, mais leve fica. Quanto menos peso, mais pesada é. Eu estou sentindo uma dorzinha debaixo das costelas do lado direito, especialmente quando eu puxo a respiração. Já tem uns dois dias mas é leve. Em relação ao treino em geral acho que estou pegando o mediano nem tão leve e nem pesado.",
-      "exercises": [
-        {
-          "name": "Barra fixa ou barra assistida",
-          "sets": [
-            {
-              "weight": "61 kg",
-              "reps": "6"
-            },
-            {
-              "weight": "54 kg",
-              "reps": "—"
-            },
-            {
-              "weight": "47 kg",
-              "reps": "6"
-            },
-            {
-              "weight": "47 kg",
-              "reps": "6"
-            }
-          ]
-        },
-        {
-          "name": "Supino inclinado na máquina",
-          "sets": [
-            {
-              "weight": "55 kg",
-              "reps": "8"
-            },
-            {
-              "weight": "45 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "45 kg",
-              "reps": "9"
-            }
-          ]
-        },
-        {
-          "name": "Remada baixa neutra",
-          "sets": [
-            {
-              "weight": "25 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "35 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "35 kg",
-              "reps": "10"
-            }
-          ]
-        },
-        {
-          "name": "Elevação lateral",
-          "sets": [
-            {
-              "weight": "5 kg",
-              "reps": "15"
-            },
-            {
-              "weight": "5 kg",
-              "reps": "15"
-            }
-          ]
-        },
-        {
-          "name": "Tríceps na polia + rosca na polia",
-          "sets": [
-            {
-              "weight": "13 kg",
-              "reps": "12"
-            },
-            {
-              "weight": "13 kg",
-              "reps": "10"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "s-2026-07-23",
-      "date": "2026-07-23",
-      "dayKey": "segunda",
-      "status": "Não treinou",
-      "readiness": "Verde",
-      "durationSeconds": 53,
-      "sleepHours": "",
-      "sleepQuality": "",
-      "energy": "",
-      "pain": "0",
-      "notes": "Não treinei porque tive que ficar com a Aurora minha filha pela manhã. A nossa secretária tinha uma consulta e a Raiane também.",
-      "exercises": []
-    },
-    {
-      "id": "s-2026-07-24",
-      "date": "2026-07-24",
-      "dayKey": "sexta",
-      "status": "Concluído",
-      "readiness": "Amarelo",
-      "durationSeconds": 2422,
-      "sleepHours": "8",
-      "sleepQuality": "5",
-      "energy": "3",
-      "pain": "4",
-      "notes": "Eu estava com um pouco de dor tanto nos ombros como nas costas mas pouco, bem pouco. E preguiça, muita preguiça treinar mas foi muito bom.",
-      "exercises": [
-        {
-          "name": "Hack squat ou leg press",
-          "sets": [
-            {
-              "weight": "40 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "80 kg",
-              "reps": "10"
-            }
-          ]
-        },
-        {
-          "name": "Supino vertical articulado",
-          "sets": [
-            {
-              "weight": "20 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "30 kg",
-              "reps": "8"
-            },
-            {
-              "weight": "30 kg",
-              "reps": "10"
-            }
-          ]
-        },
-        {
-          "name": "Remada articulada ou unilateral na máquina",
-          "sets": [
-            {
-              "weight": "45 kg",
-              "reps": "8"
-            },
-            {
-              "weight": "45 kg",
-              "reps": "9"
-            },
-            {
-              "weight": "45 kg",
-              "reps": "8"
-            }
-          ]
-        },
-        {
-          "name": "Crossover na polia",
-          "sets": [
-            {
-              "weight": "10 kg",
-              "reps": "15"
-            },
-            {
-              "weight": "12 kg",
-              "reps": "10"
-            }
-          ]
-        },
-        {
-          "name": "Face pull",
-          "sets": [
-            {
-              "weight": "15 kg",
-              "reps": "15"
-            },
-            {
-              "weight": "17 kg",
-              "reps": "14"
-            }
-          ]
-        },
-        {
-          "name": "Barra fixa — prática técnica",
-          "sets": [
-            {
-              "weight": "0 kg",
-              "reps": "0,5"
-            },
-            {
-              "weight": "0 kg",
-              "reps": "1"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "s-2026-08-04",
-      "date": "2026-08-04",
-      "dayKey": "terca",
-      "status": "Concluído",
-      "readiness": "Amarelo",
-      "durationSeconds": 3457,
-      "sleepHours": "8",
-      "sleepQuality": "5",
-      "energy": "3",
-      "pain": "0",
-      "notes": "",
-      "exercises": [
-        {
-          "name": "Leg press 45° ou hack squat",
-          "sets": [
-            {
-              "weight": "80 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "80 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "80 kg",
-              "reps": "10"
-            }
-          ]
-        },
-        {
-          "name": "Levantamento terra romeno com halteres",
-          "sets": [
-            {
-              "weight": "10 kg",
-              "reps": "11"
-            },
-            {
-              "weight": "10 kg",
-              "reps": "11"
-            },
-            {
-              "weight": "10 kg",
-              "reps": "10"
-            }
-          ]
-        },
-        {
-          "name": "Mesa ou cadeira flexora",
-          "sets": [
-            {
-              "weight": "25 kg",
-              "reps": "12"
-            },
-            {
-              "weight": "25 kg",
-              "reps": "12"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "s-2026-08-05",
-      "date": "2026-08-05",
-      "dayKey": "quarta",
-      "status": "Concluído",
-      "readiness": "Verde",
-      "durationSeconds": 1928,
-      "sleepHours": "8",
-      "sleepQuality": "4",
-      "energy": "4",
-      "pain": "1",
-      "notes": "",
-      "exercises": [
-        {
-          "name": "Barra fixa ou barra assistida",
-          "sets": [
-            {
-              "weight": "33 kg",
-              "reps": "4"
-            },
-            {
-              "weight": "40 kg",
-              "reps": "6"
-            },
-            {
-              "weight": "40 kg",
-              "reps": "5"
-            },
-            {
-              "weight": "47 kg",
-              "reps": "6"
-            }
-          ]
-        },
-        {
-          "name": "Supino inclinado na máquina",
-          "sets": [
-            {
-              "weight": "35 kg",
-              "reps": "12"
-            },
-            {
-              "weight": "40 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "45 kg",
-              "reps": "10"
-            }
-          ]
-        },
-        {
-          "name": "Elevação lateral",
-          "sets": [
-            {
-              "weight": "7 kg",
-              "reps": "12"
-            },
-            {
-              "weight": "7 kg",
-              "reps": "12"
-            }
-          ]
-        },
-        {
-          "name": "Tríceps na polia + rosca na polia",
-          "sets": [
-            {
-              "weight": "13 kg",
-              "reps": "12"
-            },
-            {
-              "weight": "13 kg",
-              "reps": "10"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "s-2026-08-06",
-      "date": "2026-08-06",
-      "dayKey": "quinta",
-      "status": "Concluído",
-      "readiness": "Verde",
-      "durationSeconds": 2638,
-      "sleepHours": "8",
-      "sleepQuality": "5",
-      "energy": "5",
-      "pain": "2",
-      "notes": "",
-      "exercises": [
-        {
-          "name": "Kettlebell swing",
-          "sets": [
-            {
-              "weight": "8 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "12 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "12 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "12 kg",
-              "reps": "10"
-            }
-          ]
-        },
-        {
-          "name": "Agachamento búlgaro",
-          "sets": [
-            {
-              "weight": "0 kg",
-              "reps": "8"
-            },
-            {
-              "weight": "0 kg",
-              "reps": "8"
-            }
-          ]
-        },
-        {
-          "name": "Suitcase carry (caminhada unilateral)",
-          "sets": [
-            {
-              "weight": "12 kg",
-              "reps": "30"
-            },
-            {
-              "weight": "16 kg",
-              "reps": "30"
-            },
-            {
-              "weight": "16 kg",
-              "reps": "40"
-            }
-          ]
-        },
-        {
-          "name": "Remo ergômetro — intervalos",
-          "sets": [
-            {
-              "weight": "6 kg",
-              "reps": "90"
-            },
-            {
-              "weight": "6 kg",
-              "reps": "90"
-            },
-            {
-              "weight": "6 kg",
-              "reps": "90"
-            },
-            {
-              "weight": "6 kg",
-              "reps": "90"
-            },
-            {
-              "weight": "6 kg",
-              "reps": "90"
-            }
-          ]
-        },
-        {
-          "name": "Mobilidade de quadril e posterior",
-          "sets": [
-            {
-              "weight": "0 kg",
-              "reps": "5"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "s-2026-08-07",
-      "date": "2026-08-07",
-      "dayKey": "sexta",
-      "status": "Concluído",
-      "readiness": "Verde",
-      "durationSeconds": 0,
-      "sleepHours": "8",
-      "sleepQuality": "5",
-      "energy": "5",
-      "pain": "2",
-      "notes": "",
-      "exercises": [
-        {
-          "name": "Hack squat ou leg press",
-          "sets": [
-            {
-              "weight": "80 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "80 kg",
-              "reps": "10"
-            }
-          ]
-        },
-        {
-          "name": "Supino vertical articulado",
-          "sets": [
-            {
-              "weight": "45 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "45 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "45 kg",
-              "reps": "9"
-            }
-          ]
-        },
-        {
-          "name": "Remada articulada ou unilateral na máquina",
-          "sets": [
-            {
-              "weight": "45 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "45 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "45 kg",
-              "reps": "9"
-            }
-          ]
-        },
-        {
-          "name": "Crossover na polia",
-          "sets": [
-            {
-              "weight": "15 kg",
-              "reps": "12"
-            },
-            {
-              "weight": "12,5 kg",
-              "reps": "15"
-            }
-          ]
-        },
-        {
-          "name": "Face pull",
-          "sets": [
-            {
-              "weight": "12,5 kg",
-              "reps": "15"
-            },
-            {
-              "weight": "15 kg",
-              "reps": "15"
-            }
-          ]
-        },
-        {
-          "name": "Barra fixa — prática técnica",
-          "sets": [
-            {
-              "weight": "40 kg",
-              "reps": "4"
-            },
-            {
-              "weight": "35 kg",
-              "reps": "3"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "s-2026-08-11",
-      "date": "2026-08-11",
-      "dayKey": "terca",
-      "status": "Concluído",
-      "readiness": "Verde",
-      "durationSeconds": 2338,
-      "sleepHours": "8",
-      "sleepQuality": "5",
-      "energy": "5",
-      "pain": "0",
-      "notes": "",
-      "exercises": [
-        {
-          "name": "Leg press 45° ou hack squat",
-          "sets": [
-            {
-              "weight": "120 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "120 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "120 kg",
-              "reps": "10"
-            }
-          ]
-        },
-        {
-          "name": "Levantamento terra romeno com halteres",
-          "sets": [
-            {
-              "weight": "9 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "9 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "9 kg",
-              "reps": "10"
-            }
-          ]
-        },
-        {
-          "name": "Mesa ou cadeira flexora",
-          "sets": [
-            {
-              "weight": "40 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "40 kg",
-              "reps": "10"
-            }
-          ]
-        },
-        {
-          "name": "Panturrilha em pé ou no leg press",
-          "sets": [
-            {
-              "weight": "36 kg",
-              "reps": "12"
-            },
-            {
-              "weight": "45 kg",
-              "reps": "12"
-            }
-          ]
-        },
-        {
-          "name": "Pallof press ou dead bug",
-          "sets": [
-            {
-              "weight": "10 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "8 kg",
-              "reps": "10"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "s-2026-08-12",
-      "date": "2026-08-12",
-      "dayKey": "quarta",
-      "status": "Concluído",
-      "readiness": "Verde",
-      "durationSeconds": 2071,
-      "sleepHours": "9",
-      "sleepQuality": "5",
-      "energy": "4",
-      "pain": "0",
-      "notes": "",
-      "exercises": [
-        {
-          "name": "Barra fixa ou barra assistida",
-          "sets": [
-            {
-              "weight": "40 kg",
-              "reps": "6"
-            },
-            {
-              "weight": "40 kg",
-              "reps": "6"
-            },
-            {
-              "weight": "40 kg",
-              "reps": "6"
-            },
-            {
-              "weight": "40 kg",
-              "reps": "4"
-            }
-          ]
-        },
-        {
-          "name": "Remada baixa neutra",
-          "sets": [
-            {
-              "weight": "30 kg",
-              "reps": "12"
-            },
-            {
-              "weight": "40 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "45 kg",
-              "reps": "10"
-            }
-          ]
-        },
-        {
-          "name": "Elevação lateral",
-          "sets": [
-            {
-              "weight": "8 kg",
-              "reps": "12"
-            },
-            {
-              "weight": "8 kg",
-              "reps": "12"
-            }
-          ]
-        },
-        {
-          "name": "Tríceps na polia + rosca na polia",
-          "sets": [
-            {
-              "weight": "13 kg",
-              "reps": "12"
-            },
-            {
-              "weight": "13 kg",
-              "reps": "12"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "s-2026-08-13",
-      "date": "2026-08-13",
-      "dayKey": "quinta",
-      "status": "Concluído",
-      "readiness": "Verde",
-      "durationSeconds": 2127,
-      "sleepHours": "8",
-      "sleepQuality": "5",
-      "energy": "5",
-      "pain": "0",
-      "notes": "",
-      "exercises": [
-        {
-          "name": "Kettlebell swing",
-          "sets": [
-            {
-              "weight": "12 kg",
-              "reps": "11"
-            },
-            {
-              "weight": "16 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "16 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "16 kg",
-              "reps": "10"
-            }
-          ]
-        },
-        {
-          "name": "Agachamento búlgaro",
-          "sets": [
-            {
-              "weight": "0 kg",
-              "reps": "8"
-            },
-            {
-              "weight": "0 kg",
-              "reps": "8"
-            }
-          ]
-        },
-        {
-          "name": "Suitcase carry (caminhada unilateral)",
-          "sets": [
-            {
-              "weight": "16 kg",
-              "reps": "30"
-            },
-            {
-              "weight": "16 kg",
-              "reps": "—"
-            },
-            {
-              "weight": "16 kg",
-              "reps": "30"
-            }
-          ]
-        },
-        {
-          "name": "Remo ergômetro — intervalos",
-          "sets": [
-            {
-              "weight": "6 kg",
-              "reps": "90"
-            },
-            {
-              "weight": "6 kg",
-              "reps": "90"
-            },
-            {
-              "weight": "6 kg",
-              "reps": "90"
-            },
-            {
-              "weight": "6 kg",
-              "reps": "90"
-            },
-            {
-              "weight": "6 kg",
-              "reps": "90"
-            },
-            {
-              "weight": "6 kg",
-              "reps": "90"
-            }
-          ]
-        },
-        {
-          "name": "Mobilidade de quadril e posterior",
-          "sets": [
-            {
-              "weight": "—",
-              "reps": "0,5"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "s-2026-08-17",
-      "date": "2026-08-17",
-      "dayKey": "segunda",
-      "status": "Concluído",
-      "readiness": "Verde",
-      "durationSeconds": 2725,
-      "sleepHours": "8",
-      "sleepQuality": "5",
-      "energy": "5",
-      "pain": "0",
-      "notes": "",
-      "exercises": [
-        {
-          "name": "Supino vertical articulado",
-          "sets": [
-            {
-              "weight": "45 kg",
-              "reps": "8"
-            },
-            {
-              "weight": "55 kg",
-              "reps": "8"
-            },
-            {
-              "weight": "55 kg",
-              "reps": "8"
-            }
-          ]
-        },
-        {
-          "name": "Puxada frontal pegada neutra",
-          "sets": [
-            {
-              "weight": "40 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "40 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "47 kg",
-              "reps": "10"
-            }
-          ]
-        },
-        {
-          "name": "Supino inclinado com halteres",
-          "sets": [
-            {
-              "weight": "14 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "18 kg",
-              "reps": "10"
-            }
-          ]
-        },
-        {
-          "name": "Remada articulada com apoio no peito",
-          "sets": [
-            {
-              "weight": "45 kg",
-              "reps": "8"
-            },
-            {
-              "weight": "45 kg",
-              "reps": "8"
-            }
-          ]
-        },
-        {
-          "name": "Tríceps na corda",
-          "sets": [
-            {
-              "weight": "15 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "12 kg",
-              "reps": "10"
-            }
-          ]
-        },
-        {
-          "name": "Rosca martelo",
-          "sets": [
-            {
-              "weight": "8 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "8 kg",
-              "reps": "10"
-            }
-          ]
-        },
-        {
-          "name": "Prancha nos antebraços",
-          "sets": [
-            {
-              "weight": "0 kg",
-              "reps": "45"
-            },
-            {
-              "weight": "0 kg",
-              "reps": "48"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "s-2026-08-18",
-      "date": "2026-08-18",
-      "dayKey": "terca",
-      "status": "Concluído",
-      "readiness": "Verde",
-      "durationSeconds": 2427,
-      "sleepHours": "8",
-      "sleepQuality": "5",
-      "energy": "5",
-      "pain": "0",
-      "notes": "",
-      "exercises": [
-        {
-          "name": "Leg press 45° ou hack squat",
-          "sets": [
-            {
-              "weight": "120 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "120 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "140 kg",
-              "reps": "10"
-            }
-          ]
-        },
-        {
-          "name": "Levantamento terra romeno com halteres",
-          "sets": [
-            {
-              "weight": "10 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "10 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "10 kg",
-              "reps": "10"
-            }
-          ]
-        },
-        {
-          "name": "Mesa ou cadeira flexora",
-          "sets": [
-            {
-              "weight": "47 kg",
-              "reps": "8"
-            },
-            {
-              "weight": "40 kg",
-              "reps": "10"
-            }
-          ]
-        },
-        {
-          "name": "Panturrilha em pé ou no leg press",
-          "sets": [
-            {
-              "weight": "55 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "55 kg",
-              "reps": "12"
-            }
-          ]
-        },
-        {
-          "name": "Pallof press ou dead bug",
-          "sets": [
-            {
-              "weight": "8 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "8 kg",
-              "reps": "10"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "s-2026-08-19",
-      "date": "2026-08-19",
-      "dayKey": "quarta",
-      "status": "Concluído",
-      "readiness": "Verde",
-      "durationSeconds": 2414,
-      "sleepHours": "8",
-      "sleepQuality": "5",
-      "energy": "5",
-      "pain": "0",
-      "notes": "",
-      "exercises": [
-        {
-          "name": "Barra fixa ou barra assistida",
-          "sets": [
-            {
-              "weight": "40 kg",
-              "reps": "6"
-            },
-            {
-              "weight": "40 kg",
-              "reps": "6"
-            },
-            {
-              "weight": "40 kg",
-              "reps": "6"
-            },
-            {
-              "weight": "40 kg",
-              "reps": "6"
-            }
-          ]
-        },
-        {
-          "name": "Supino inclinado na máquina",
-          "sets": [
-            {
-              "weight": "40 kg",
-              "reps": "12"
-            },
-            {
-              "weight": "50 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "50 kg",
-              "reps": "9"
-            }
-          ]
-        },
-        {
-          "name": "Remada baixa neutra",
-          "sets": [
-            {
-              "weight": "40 kg",
-              "reps": "12"
-            },
-            {
-              "weight": "40 kg",
-              "reps": "10"
-            },
-            {
-              "weight": "40 kg",
-              "reps": "10"
-            }
-          ]
-        },
-        {
-          "name": "Elevação lateral",
-          "sets": [
-            {
-              "weight": "8 kg",
-              "reps": "12"
-            },
-            {
-              "weight": "8 kg",
-              "reps": "11"
-            }
-          ]
-        },
-        {
-          "name": "Tríceps na polia + rosca na polia",
-          "sets": [
-            {
-              "weight": "12 kg",
-              "reps": "12"
-            },
-            {
-              "weight": "12 kg",
-              "reps": "12"
-            }
-          ]
-        }
-      ]
-    }
-  ]
+  profile: { name: '', height_cm: '', weight_kg: '', waist_cm: '', chest_cm: '', pullups: '', plank_sec: '', bike_daily_km: '', goal: '' },
+  sessions: []
 };
-
 const STORAGE_KEY = "treino_hibrido_juarez_v5";
 let state = loadState();
 
 /* RUNNER STATE (TYPEFORM STYLE) */
 let activeWorkout = null; 
+let selectedHomeWorkoutKey = null;
 // { dayKey, startTime, elapsedSeconds, currentIndex, exerciseData: [ { id, name, skipped: bool, sets: [{ weight, reps, done }] } ] }
 let runnerTimerInterval = null;
+let isometricTimerInterval = null;
+let isometricRemaining = 45;
 let runnerRestEnd = 0;
 let runnerRestTotal = 0;
 let runnerRestRunning = false;
+let runnerRestEligible = false;
+let runnerRestOriginIndex = -1;
+let runnerRestOriginSetIndex = -1;
+let runnerRestPausedRemaining = null;
 let runnerTotalClockInterval = null;
 
 /* AUDIO & SENSORS */
 let audioCtx = null;
 let wakeLockSentinel = null;
+let wakeLockRequest = null;
+let wakeLockGeneration = 0;
 
 function deepClone(x) { return JSON.parse(JSON.stringify(x)); }
+function createFreshState() {
+  const fresh = deepClone(DEFAULT_STATE);
+  fresh.profile = Object.fromEntries(Object.keys(fresh.profile || {}).map(key => [key, '']));
+  fresh.sessions = [];
+  return { ...fresh, keepAwakeEnabled: false, onboardingSeen: false, onboardingConfigured: false };
+}
 function loadState() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) return JSON.parse(saved);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        const legacyExistingInstall = !Object.hasOwn(parsed, 'onboardingSeen') && Array.isArray(parsed.sessions) && parsed.sessions.length > 0;
+        return { ...parsed, keepAwakeEnabled: parsed.keepAwakeEnabled === true, onboardingSeen: parsed.onboardingSeen === true || legacyExistingInstall };
+      }
+    }
   } catch(e) {}
-  return deepClone(DEFAULT_STATE);
+  return createFreshState();
 }
 function persist() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function normalizeFirstUseFeedback(value) {
+  const valid = new Set(['Fácil', 'Mais ou menos', 'Difícil']);
+  const answers = value && value.answers;
+  const complete = answers && ['iniciar', 'seriesDescanso', 'fluxoGeral'].every(key => valid.has(answers[key]));
+  return { invited: value?.invited === true, answers: complete ? { iniciar: answers.iniciar, seriesDescanso: answers.seriesDescanso, fluxoGeral: answers.fluxoGeral } : null };
+}
+function ensureFirstUseFeedbackOverlay() {
+  let overlay = document.querySelector('[data-first-use-feedback-overlay]');
+  if (overlay) return overlay;
+  overlay = document.createElement('section'); overlay.hidden = true; overlay.dataset.firstUseFeedbackOverlay = ''; overlay.style.cssText = 'position:fixed;inset:0;z-index:1400;display:grid;place-items:center;padding:20px;background:rgba(9,13,18,.92)';
+  overlay.innerHTML = '<div style="width:min(100%,350px);padding:20px;border:1px solid var(--line);border-radius:16px;background:var(--panel)"><h2>Como foi o primeiro treino?</h2><div data-first-use-feedback-summary hidden></div><div data-first-use-feedback-form></div><button class="btn-timer-ctrl" data-feedback-close style="width:100%;min-height:44px">Fechar</button><button class="btn-timer-ctrl" data-first-use-feedback-delete hidden style="width:100%;min-height:44px;margin-top:8px">Apagar feedback</button></div>';
+  document.body.append(overlay); overlay.querySelector('[data-feedback-close]').onclick = () => { overlay.hidden = true; overlay.style.display = 'none'; }; overlay.querySelector('[data-first-use-feedback-delete]').onclick = deleteFirstUseFeedback;
+  return overlay;
+}
+function openFirstUseFeedback() { const overlay = ensureFirstUseFeedbackOverlay(), form = overlay.querySelector('[data-first-use-feedback-form]'), summary = overlay.querySelector('[data-first-use-feedback-summary]'), saved = normalizeFirstUseFeedback(state.firstUseFeedback); overlay.hidden = false; overlay.style.display = 'grid'; document.querySelector('[data-first-use-feedback-share]').hidden = !saved.answers; if (saved.answers) { summary.hidden = false; summary.textContent = `Iniciar: ${saved.answers.iniciar} · Séries e descanso: ${saved.answers.seriesDescanso} · Fluxo: ${saved.answers.fluxoGeral}`; form.hidden = true; overlay.querySelector('[data-first-use-feedback-delete]').hidden = false; return; } summary.hidden = true; form.hidden = false; overlay.querySelector('[data-first-use-feedback-delete]').hidden = true; const labels = [['iniciar','Iniciar o treino'],['series-descanso','Séries e descanso'],['fluxo-geral','Entender o fluxo geral']]; form.replaceChildren(...labels.flatMap(([key,label]) => { const group=document.createElement('div'); group.innerHTML=`<p style="font-size:16px">${label}</p>`; ['Fácil','Mais ou menos','Difícil'].forEach(value => { const b=document.createElement('button'); b.className='btn-timer-ctrl'; b.textContent=value; b.dataset.feedbackAnswer=key; b.dataset.feedbackValue=value; b.onclick=()=>{ group.querySelectorAll('button').forEach(x=>x.dataset.selected=''); b.dataset.selected='true'; }; group.append(b); }); return [group]; })); const submit=document.createElement('button'); submit.className='btn-primary-glow'; submit.dataset.feedbackSubmit=''; submit.textContent='Salvar feedback'; submit.onclick=()=>{ const answers={}; form.querySelectorAll('[data-selected="true"]').forEach(b=>answers[b.dataset.feedbackAnswer.replace('series-descanso','seriesDescanso').replace('fluxo-geral','fluxoGeral')]=b.dataset.feedbackValue); if(Object.keys(answers).length!==3)return; state.firstUseFeedback={invited:true,answers}; persist(); openFirstUseFeedback(); }; form.append(submit); }
+function shareFirstUseFeedback() { const a = normalizeFirstUseFeedback(state.firstUseFeedback).answers; if (!a) return; const text = `Feedback do primeiro uso\nIniciar: ${a.iniciar}\nSéries e descanso: ${a.seriesDescanso}\nFluxo geral: ${a.fluxoGeral}`; if (navigator.share && typeof File !== 'undefined') navigator.share({ title: 'Feedback do primeiro uso', files: [new File([text], 'feedback-primeiro-uso.md', { type: 'text/markdown' })] }).catch(() => downloadFile(text, 'feedback-primeiro-uso.md', 'text/markdown;charset=utf-8')); else downloadFile(text, 'feedback-primeiro-uso.md', 'text/markdown;charset=utf-8'); }
+function deleteFirstUseFeedback() { state.firstUseFeedback={invited:true,answers:null}; persist(); const overlay=ensureFirstUseFeedbackOverlay(); overlay.hidden=true; overlay.style.display='none'; document.querySelector('[data-first-use-feedback-share]').hidden=true; }
+function getOnboardingSeen() {
+  return state.onboardingSeen === true;
+}
+
+function markOnboardingSeen() {
+  state.onboardingSeen = true;
+  persist();
+}
+
+function saveOnboardingDraft(overlay) {
+  state.initialProfileDraft = { name: overlay.querySelector('[data-onboarding-name]').value, goal: overlay.querySelector('[data-onboarding-goal]').value };
+  persist();
+}
+
+function hasOwnImportedWorkout() {
+  try {
+    const imported = JSON.parse(localStorage.getItem(IMPORTED_WORKOUTS_KEY) || '[]');
+    return Array.isArray(imported) && imported.some(item => item && item.id);
+  } catch { return false; }
+}
+
+function completeOnboardingWithOwnWorkout() {
+  if (!hasOwnImportedWorkout()) return false;
+  const draft = state.initialProfileDraft || {};
+  state.profile = { ...state.profile, name: draft.name || '', goal: draft.goal || '' };
+  state.onboardingConfigured = true;
+  markOnboardingSeen();
+  renderProfileSummary();
+  selectedHomeWorkoutKey = Object.keys(getAvailableWorkouts())[0] || null;
+  updateTodayHero(selectedHomeWorkoutKey);
+  closeOnboardingIntroduction();
+  return true;
+}
+
+function closeOnboardingIntroduction() {
+  const overlay = document.querySelector('[data-onboarding-overlay]');
+  if (overlay) { overlay.hidden = true; overlay.style.display = 'none'; }
+}
+
+function openOnboardingIntroduction() {
+  const overlay = document.querySelector('[data-onboarding-overlay]');
+  if (!overlay) return;
+  const draft = state.initialProfileDraft || {};
+  overlay.querySelector('[data-onboarding-name]').value = draft.name || state.profile?.name || '';
+  overlay.querySelector('[data-onboarding-goal]').value = draft.goal || state.profile?.goal || 'Força';
+  overlay.hidden = false; overlay.style.display = 'grid';
+}
+
+function initOnboardingIntroduction() {
+  const overlay = document.querySelector('[data-onboarding-overlay]');
+  if (!overlay) return;
+  overlay.querySelector('[data-onboarding-continue]').addEventListener('click', () => { saveOnboardingDraft(overlay); closeOnboardingIntroduction(); });
+  overlay.querySelector('[data-onboarding-import-own]').addEventListener('click', () => { saveOnboardingDraft(overlay); openWorkoutImport(true); });
+  if (!getOnboardingSeen()) openOnboardingIntroduction();
+}
+
+const ALERT_PREFERENCES_DEFAULT = { presetId: "triple-high", volume: 0.9, vibrationLevelId: "vibration-standard" };
+const ALARM_PRESETS = {
+  "triple-high": [
+    { freq: 950, start: 0, dur: 0.15 },
+    { freq: 1250, start: 0.18, dur: 0.15 },
+    { freq: 1650, start: 0.36, dur: 0.35 }
+  ],
+  "pulse-high": [
+    { freq: 950, start: 0, dur: 0.12 },
+    { freq: 950, start: 0.22, dur: 0.12 },
+    { freq: 950, start: 0.44, dur: 0.12 }
+  ],
+  "double-rise": [
+    { freq: 880, start: 0, dur: 0.12 },
+    { freq: 1320, start: 0.14, dur: 0.16 },
+    { freq: 880, start: 0.42, dur: 0.12 },
+    { freq: 1320, start: 0.56, dur: 0.16 }
+  ]
+};
+const VIBRATION_PATTERNS = {
+  "vibration-short": 120,
+  "vibration-standard": [300, 150, 300, 150, 600],
+  "vibration-long": [300, 150, 300, 150, 300, 150, 600]
+};
+
+function normalizeAlertPreferences(candidate) {
+  const presetId = ALARM_PRESETS[candidate?.presetId] ? candidate.presetId : ALERT_PREFERENCES_DEFAULT.presetId;
+  const parsedVolume = Number(candidate?.volume);
+  const volume = Number.isFinite(parsedVolume) && parsedVolume >= 0.1 && parsedVolume <= 1
+    ? Math.round(parsedVolume * 10) / 10
+    : ALERT_PREFERENCES_DEFAULT.volume;
+  const vibrationLevelId = VIBRATION_PATTERNS[candidate?.vibrationLevelId]
+    ? candidate.vibrationLevelId
+    : ALERT_PREFERENCES_DEFAULT.vibrationLevelId;
+  return { presetId, volume, vibrationLevelId };
+}
+
+function getAlertPreferences() {
+  return normalizeAlertPreferences(state.alertPreferences);
+}
+
+function syncAlertPreferencesControls() {
+  const preferences = getAlertPreferences();
+  const preset = document.getElementById("alarmSoundPreset");
+  const volume = document.getElementById("soundVolume");
+  const vibrationLevel = document.getElementById("vibrationLevel");
+  if (preset) preset.value = preferences.presetId;
+  if (volume) volume.value = String(preferences.volume);
+  if (vibrationLevel) vibrationLevel.value = preferences.vibrationLevelId;
+}
+
+function updateAlertPreferences(next) {
+  state.alertPreferences = normalizeAlertPreferences({ ...getAlertPreferences(), ...next });
+  persist();
+  syncAlertPreferencesControls();
+  return state.alertPreferences;
+}
+
+function updateAlarmSoundPreset(presetId) {
+  updateAlertPreferences({ presetId });
+}
+
+function updateVibrationLevel(vibrationLevelId) {
+  updateAlertPreferences({ vibrationLevelId });
+}
+
+function getVibrationPattern(vibrationLevelId) {
+  return VIBRATION_PATTERNS[vibrationLevelId] ?? VIBRATION_PATTERNS[ALERT_PREFERENCES_DEFAULT.vibrationLevelId];
+}
+
+function getSeriesCompletionVibration() {
+  return 60;
+}
+
+function requestRestVibration() {
+  if (!document.getElementById("vibrateToggle")?.checked || typeof navigator.vibrate !== "function") return false;
+  try {
+    return navigator.vibrate(getVibrationPattern(getAlertPreferences().vibrationLevelId)) === true;
+  } catch (error) {
+    return false;
+  }
 }
 
 /* DAY & CALENDAR UTILS */
@@ -2410,8 +1414,9 @@ const DAY_KEYS = ["domingo", "segunda", "terca", "quarta", "quinta", "sexta", "s
 function getTodayDayKey() {
   const dayIndex = new Date().getDay();
   const key = DAY_KEYS[dayIndex];
-  if (WORKOUTS[key]) return key;
-  return "segunda"; // Fallback para segunda nos finais de semana
+  const available = getAvailableWorkouts();
+  if (available[key]) return key;
+  return Object.keys(available)[0] || null;
 }
 
 function initCalendarStrip() {
@@ -2449,15 +1454,22 @@ function initCalendarStrip() {
 function onCalendarDayClick(isoDate, dayIndex) {
   const keys = ["segunda", "terca", "quarta", "quinta", "sexta", "sabado", "domingo"];
   const targetKey = keys[dayIndex] || "segunda";
-  if (WORKOUTS[targetKey]) {
+  if (getAvailableWorkouts()[targetKey]) {
+    selectedHomeWorkoutKey = targetKey;
     updateTodayHero(targetKey);
   }
 }
 
 function updateTodayHero(forceDayKey) {
   const key = forceDayKey || getTodayDayKey();
-  const w = WORKOUTS[key];
-  if (!w) return;
+  const w = getAvailableWorkouts()[key];
+  if (!w) {
+    document.getElementById("todayHeroTag").textContent = "Configure seu treino";
+    document.getElementById("todayHeroTitle").textContent = "Importe seu treino";
+    document.getElementById("todayHeroFocus").textContent = "Seu plano aparecerá aqui depois da importação.";
+    document.getElementById("todayHeroExCount").textContent = "0 exercícios";
+    return;
+  }
   document.getElementById("todayHeroTitle").textContent = w.label;
   document.getElementById("todayHeroFocus").textContent = `${w.focus} · ${w.duration}`;
   document.getElementById("todayHeroExCount").textContent = `${w.exercises.length} exercícios`;
@@ -2550,12 +1562,21 @@ function getLastExerciseRecord(exerciseName) {
 
 /* START WORKOUT RUNNER (TYPEFORM MODE) */
 function startTodayWorkout() {
-  const key = getTodayDayKey();
+  const key = selectedHomeWorkoutKey || getTodayDayKey();
   startWorkoutByKey(key);
 }
 
+function getSafeRunnerVideoHref(value) {
+  try {
+    const url = new URL(String(value || '#'), location.href);
+    return ['http:', 'https:'].includes(url.protocol) ? url.href : '#';
+  } catch {
+    return '#';
+  }
+}
+
 function startWorkoutByKey(dayKey) {
-  const w = WORKOUTS[dayKey];
+  const w = getAvailableWorkouts()[dayKey];
   if (!w) return;
   
   ensureAudioContext();
@@ -2577,6 +1598,7 @@ function startWorkoutByKey(dayKey) {
         rir: ex.rir,
         notes: ex.notes,
         video: ex.video,
+        isometric: Boolean(ex.isometric),
         skipped: false,
         lastRecord: lastRec,
         sets: Array.from({ length: ex.sets }, (_, i) => {
@@ -2594,6 +1616,7 @@ function startWorkoutByKey(dayKey) {
 
   document.getElementById("runnerOverlay").classList.add("active");
   document.body.style.overflow = "hidden";
+  if (getKeepAwakePreference()) toggleWakeLock(true);
   
   // Start elapsed workout clock
   if (runnerTotalClockInterval) clearInterval(runnerTotalClockInterval);
@@ -2614,6 +1637,8 @@ function renderRunnerExercise(index) {
   
   activeWorkout.currentIndex = index;
   const ex = activeWorkout.exerciseData[index];
+  if (isometricTimerInterval) clearInterval(isometricTimerInterval);
+  isometricTimerInterval = null;
   const total = activeWorkout.exerciseData.length;
 
   // Header and progress
@@ -2621,17 +1646,31 @@ function renderRunnerExercise(index) {
   document.getElementById("runnerExerciseBadge").textContent = `Exercício ${index + 1} de ${total}`;
   document.getElementById("runnerExerciseName").textContent = ex.name;
   
-  // Meta tags
-  document.getElementById("runnerMetaTags").innerHTML = `
-    <span class="tag-pill">${ex.setsCount} séries</span>
-    <span class="tag-pill">${ex.targetReps} reps</span>
-    <span class="tag-pill">Descanso ${ex.restSeconds}s</span>
-    <span class="tag-pill">RIR ${ex.rir}</span>
-  `;
+  // Meta tags: imported and persisted values must remain literal text.
+  const runnerMetaTags = document.getElementById("runnerMetaTags");
+  runnerMetaTags.replaceChildren(...[
+    `${ex.setsCount} séries`, `${ex.targetReps} reps`,
+    `Descanso ${ex.restSeconds}s`, `RIR ${ex.rir}`,
+  ].map(text => { const tag = document.createElement('span'); tag.className = 'tag-pill'; tag.textContent = text; return tag; }));
 
   // Video Link
   const videoBtn = document.getElementById("runnerVideoLink");
-  videoBtn.href = ex.video;
+  videoBtn.href = getSafeRunnerVideoHref(ex.video);
+  const isometricCard = document.querySelector("[data-isometric-timer]");
+  isometricCard.style.display = ex.isometric ? "flex" : "none";
+  if (ex.isometric) {
+    isometricRemaining = 45;
+    const display = isometricCard.querySelector("[data-isometric-display]");
+    const paint = () => { display.textContent = `00:${String(isometricRemaining).padStart(2, "0")}`; };
+    paint();
+    isometricCard.querySelector("[data-isometric-adjust]").onclick = () => { isometricRemaining += 5; paint(); };
+    isometricCard.querySelector("[data-isometric-play]").onclick = (event) => {
+      if (isometricTimerInterval) { clearInterval(isometricTimerInterval); isometricTimerInterval = null; event.currentTarget.textContent = "▶ Iniciar série"; return; }
+      event.currentTarget.textContent = "❚❚ Pausar série";
+      isometricTimerInterval = setInterval(() => { if (isometricRemaining > 0) { isometricRemaining -= 1; paint(); } if (isometricRemaining === 0) { clearInterval(isometricTimerInterval); isometricTimerInterval = null; event.currentTarget.textContent = "▶ Iniciar série"; } }, 1000);
+    };
+  }
+  renderEquipmentSummary(ex);
 
   // Last session record badge
   const recordBadge = document.getElementById("runnerLastRecordBadge");
@@ -2645,24 +1684,21 @@ function renderRunnerExercise(index) {
 
   // Render Sets Input Cards
   const setsContainer = document.getElementById("runnerSetsContainer");
-  setsContainer.innerHTML = ex.sets.map((st, sIdx) => `
-    <div class="set-row-card ${st.done ? 'done' : ''}" id="setRow_${index}_${sIdx}">
-      <div class="set-index-badge">${st.setNum}</div>
-      <div class="set-inputs-wrap">
-        <div class="set-input-group">
-          <label>Carga (kg)</label>
-          <input type="text" value="${st.weight}" placeholder="Ex: 32 kg" onchange="updateSetData(${index}, ${sIdx}, 'weight', this.value)">
-        </div>
-        <div class="set-input-group">
-          <label>Repetições</label>
-          <input type="text" value="${st.reps}" placeholder="${ex.targetReps}" onchange="updateSetData(${index}, ${sIdx}, 'reps', this.value)">
-        </div>
-      </div>
-      <button class="btn-check-set" onclick="toggleCompleteSet(${index}, ${sIdx}, ${ex.restSeconds})" title="Concluir série">
-        ${st.done ? '✓' : '○'}
-      </button>
-    </div>
-  `).join("");
+  setsContainer.replaceChildren(...ex.sets.map((st, sIdx) => {
+    const row = document.createElement('div'); row.className = `set-row-card${st.done ? ' done' : ''}`; row.id = `setRow_${index}_${sIdx}`;
+    const badge = document.createElement('div'); badge.className = 'set-index-badge'; badge.textContent = String(st.setNum);
+    const inputs = document.createElement('div'); inputs.className = 'set-inputs-wrap';
+    const loadGroup = document.createElement('div'); loadGroup.className = 'set-input-group set-input-group--load';
+    const loadLabel = document.createElement('label'); loadLabel.textContent = 'Carga (kg)';
+    const load = document.createElement('input'); load.type = 'text'; load.inputMode = 'decimal'; load.value = String(st.weight ?? '').replace(/\s*kg\s*$/i, ''); load.placeholder = 'Ex: 32'; load.onchange = () => updateSetData(index, sIdx, 'weight', load.value);
+    const suffix = document.createElement('span'); suffix.className = 'series-load-suffix'; suffix.setAttribute('aria-hidden', 'true'); suffix.textContent = 'kg'; loadGroup.append(loadLabel, load, suffix);
+    const repsGroup = document.createElement('div'); repsGroup.className = 'set-input-group';
+    const repsLabel = document.createElement('label'); repsLabel.textContent = 'Repetições';
+    const reps = document.createElement('input'); reps.type = 'text'; reps.inputMode = 'numeric'; reps.value = String(st.reps ?? ''); reps.placeholder = String(ex.targetReps ?? ''); reps.onchange = () => updateSetData(index, sIdx, 'reps', reps.value); repsGroup.append(repsLabel, reps);
+    inputs.append(loadGroup, repsGroup);
+    const complete = document.createElement('button'); complete.className = 'btn-check-set'; complete.title = 'Concluir série'; complete.textContent = st.done ? '✓' : '○'; complete.onclick = () => toggleCompleteSet(index, sIdx, ex.restSeconds);
+    row.append(badge, inputs, complete); return row;
+  }));
 
   // Navigation Buttons State
   document.getElementById("btnPrevExercise").style.visibility = (index === 0) ? "hidden" : "visible";
@@ -2682,6 +1718,7 @@ function toggleCompleteSet(exIndex, setIndex, defaultRestSeconds) {
   if (!activeWorkout) return;
   const setObj = activeWorkout.exerciseData[exIndex].sets[setIndex];
   setObj.done = !setObj.done;
+  if (!setObj.done && runnerRestOriginIndex === exIndex && runnerRestOriginSetIndex === setIndex) { runnerRestEligible = false; runnerRestOriginIndex = -1; runnerRestOriginSetIndex = -1; runnerRestPausedRemaining = null; }
   
   const row = document.getElementById(`setRow_${exIndex}_${setIndex}`);
   if (row) {
@@ -2693,8 +1730,12 @@ function toggleCompleteSet(exIndex, setIndex, defaultRestSeconds) {
   // If marked done, trigger auto rest timer
   if (setObj.done) {
     if (navigator.vibrate && document.getElementById("vibrateToggle")?.checked) {
-      navigator.vibrate(60);
+      navigator.vibrate(getSeriesCompletionVibration());
     }
+    runnerRestEligible = (setIndex === activeWorkout.exerciseData[exIndex].sets.length - 1);
+    runnerRestOriginIndex = exIndex;
+    runnerRestOriginSetIndex = setIndex;
+    runnerRestPausedRemaining = null;
     startRunnerRestTimer(defaultRestSeconds);
   }
 }
@@ -2705,6 +1746,7 @@ function startRunnerRestTimer(seconds) {
   runnerRestTotal = seconds;
   runnerRestEnd = Date.now() + seconds * 1000;
   runnerRestRunning = true;
+  if (!runnerRestEligible) runnerRestOriginIndex = -1;
   
   document.getElementById("runnerTimerLabel").textContent = "Descanso em andamento";
   document.getElementById("btnToggleRest").textContent = "Pausar";
@@ -2734,16 +1776,24 @@ function updateRunnerRestTick() {
 function finishRunnerRest() {
   if (runnerTimerInterval) clearInterval(runnerTimerInterval);
   runnerRestRunning = false;
+  runnerRestEligible = false; runnerRestOriginIndex = -1; runnerRestOriginSetIndex = -1; runnerRestPausedRemaining = null;
   document.getElementById("runnerTimerDisplay").textContent = "PRONTO!";
   document.getElementById("runnerTimerDisplay").classList.add("finished");
   document.getElementById("runnerTimerLabel").textContent = "Descanso finalizado! Próxima série.";
   document.getElementById("runnerTimerFill").style.width = "100%";
   document.getElementById("btnToggleRest").textContent = "Iniciar Descanso";
 
+  requestRestVibration();
   playHighVolumeAlarm();
 }
 
 function resetRunnerRestTimer(defaultSec) {
+  if (runnerRestEligible && runnerRestOriginIndex >= 0) {
+    updateRunnerRestTick();
+    document.getElementById("btnToggleRest").textContent = runnerRestRunning ? "Pausar" : "Retomar";
+    document.getElementById("runnerTimerLabel").textContent = runnerRestRunning ? "Descanso em andamento" : "Descanso pausado";
+    return;
+  }
   if (runnerTimerInterval) clearInterval(runnerTimerInterval);
   runnerRestRunning = false;
   const m = Math.floor(defaultSec / 60);
@@ -2759,11 +1809,21 @@ function toggleRunnerRest() {
   if (runnerRestRunning) {
     if (runnerTimerInterval) clearInterval(runnerTimerInterval);
     runnerRestRunning = false;
+    runnerRestPausedRemaining = Math.max(0, runnerRestEnd - Date.now());
     document.getElementById("btnToggleRest").textContent = "Retomar";
     document.getElementById("runnerTimerLabel").textContent = "Descanso pausado";
   } else {
-    const ex = activeWorkout.exerciseData[activeWorkout.currentIndex];
-    startRunnerRestTimer(ex.restSeconds);
+    if (runnerRestEligible && runnerRestPausedRemaining != null) {
+      runnerRestEnd = Date.now() + runnerRestPausedRemaining;
+      runnerRestRunning = true;
+      runnerRestPausedRemaining = null;
+      runnerTimerInterval = setInterval(updateRunnerRestTick, 250);
+      updateRunnerRestTick();
+    } else {
+      const ex = activeWorkout.exerciseData[activeWorkout.currentIndex];
+      runnerRestEligible = false;
+      startRunnerRestTimer(ex.restSeconds);
+    }
   }
 }
 
@@ -2781,6 +1841,7 @@ function addRunnerRest(deltaSeconds) {
 function skipRunnerRest() {
   if (runnerTimerInterval) clearInterval(runnerTimerInterval);
   runnerRestRunning = false;
+  runnerRestEligible = false; runnerRestOriginIndex = -1; runnerRestOriginSetIndex = -1; runnerRestPausedRemaining = null;
   document.getElementById("runnerTimerDisplay").textContent = "00:00";
   document.getElementById("runnerTimerFill").style.width = "0%";
   document.getElementById("runnerTimerLabel").textContent = "Descanso pulado";
@@ -2801,18 +1862,11 @@ function ensureAudioContext() {
 }
 
 function playHighVolumeAlarm() {
-  ensureAudioContext();
-  if (!audioCtx) return;
+  if (!ensureAudioContext() || !audioCtx) return false;
 
-  const vol = Number(document.getElementById("soundVolume")?.value || 0.9);
+  const { presetId, volume: vol } = getAlertPreferences();
   const now = audioCtx.currentTime;
-
-  // Multi-tone beep sequence (piercing high gain frequency)
-  const tones = [
-    { freq: 950, start: 0, dur: 0.15 },
-    { freq: 1250, start: 0.18, dur: 0.15 },
-    { freq: 1650, start: 0.36, dur: 0.35 }
-  ];
+  const tones = ALARM_PRESETS[presetId];
 
   tones.forEach(t => {
     const osc = audioCtx.createOscillator();
@@ -2828,10 +1882,7 @@ function playHighVolumeAlarm() {
     osc.stop(now + t.start + t.dur + 0.05);
   });
 
-  // Vibration API trigger
-  if (navigator.vibrate && document.getElementById("vibrateToggle")?.checked) {
-    navigator.vibrate([300, 150, 300, 150, 600]);
-  }
+  return true;
 }
 
 function testAudioAlarm() {
@@ -2840,7 +1891,7 @@ function testAudioAlarm() {
 }
 
 function updateAudioVolume(val) {
-  // Saved in memory
+  updateAlertPreferences({ volume: val });
 }
 
 /* SKIP EXERCISE AND NAVIGATION */
@@ -2874,15 +1925,12 @@ function skipCurrentExercise() {
 function openSkippedModal(skippedList) {
   const modal = document.getElementById("skippedModal");
   const list = document.getElementById("skippedModalList");
-  list.innerHTML = skippedList.map(e => `
-    <div class="exercise-list-item" onclick="jumpToSkippedExercise('${e.id}')">
-      <div>
-        <b>${e.name}</b>
-        <div style="font-size:0.75rem;color:var(--muted);">${e.setsCount} séries pendentes</div>
-      </div>
-      <span class="status-pill skipped">Fazer Agora ➔</span>
-    </div>
-  `).join("");
+  list.replaceChildren(...skippedList.map(e => {
+    const item = document.createElement('div'); item.className = 'exercise-list-item'; item.onclick = () => jumpToSkippedExercise(e.id);
+    const details = document.createElement('div'); const name = document.createElement('b'); name.textContent = e.name;
+    const meta = document.createElement('div'); meta.style.cssText = 'font-size:0.75rem;color:var(--muted);'; meta.textContent = `${e.setsCount} séries pendentes`; details.append(name, meta);
+    const action = document.createElement('span'); action.className = 'status-pill skipped'; action.textContent = 'Fazer Agora ➔'; item.append(details, action); return item;
+  }));
   modal.classList.add("active");
 }
 
@@ -2910,25 +1958,18 @@ function openExerciseOverviewDrawer() {
   if (!activeWorkout) return;
   const drawer = document.getElementById("overviewDrawer");
   const list = document.getElementById("overviewDrawerList");
-  
-  list.innerHTML = activeWorkout.exerciseData.map((e, idx) => {
+  list.replaceChildren(...activeWorkout.exerciseData.map((e, idx) => {
     const isDone = e.sets.every(s => s.done);
     const isSkipped = e.skipped;
     let statusText = "Pendente";
     let statusClass = "pending";
     if (isDone) { statusText = "Concluído"; statusClass = "done"; }
     else if (isSkipped) { statusText = "Pulado"; statusClass = "skipped"; }
-
-    return `
-      <div class="exercise-list-item ${idx === activeWorkout.currentIndex ? 'active-item' : ''}" onclick="jumpToExercise(${idx})">
-        <div>
-          <b>${idx + 1}. ${e.name}</b>
-          <div style="font-size:0.75rem;color:var(--muted);">${e.setsCount} séries · ${e.targetReps} reps</div>
-        </div>
-        <span class="status-pill ${statusClass}">${statusText}</span>
-      </div>
-    `;
-  }).join("");
+    const item = document.createElement('div'); item.className = `exercise-list-item${idx === activeWorkout.currentIndex ? ' active-item' : ''}`; item.onclick = () => jumpToExercise(idx);
+    const details = document.createElement('div'); const name = document.createElement('b'); name.textContent = `${idx + 1}. ${e.name}`;
+    const meta = document.createElement('div'); meta.style.cssText = 'font-size:0.75rem;color:var(--muted);'; meta.textContent = `${e.setsCount} séries · ${e.targetReps} reps`; details.append(name, meta);
+    const status = document.createElement('span'); status.className = `status-pill ${statusClass}`; status.textContent = statusText; item.append(details, status); return item;
+  }));
 
   drawer.classList.add("active");
 }
@@ -2979,11 +2020,13 @@ function saveActiveWorkoutSession() {
 
   state.sessions.push(savedSession);
   persist();
+  if (!normalizeFirstUseFeedback(state.firstUseFeedback).invited) { state.firstUseFeedback = { invited: true, answers: null }; persist(); openFirstUseFeedback(); }
 
   // Clean runner
   if (runnerTotalClockInterval) clearInterval(runnerTotalClockInterval);
   if (runnerTimerInterval) clearInterval(runnerTimerInterval);
   activeWorkout = null;
+  toggleWakeLock(false);
 
   closeFinishModal();
   document.getElementById("runnerOverlay").classList.remove("active");
@@ -3000,6 +2043,7 @@ function promptExitWorkout() {
     if (runnerTotalClockInterval) clearInterval(runnerTotalClockInterval);
     if (runnerTimerInterval) clearInterval(runnerTimerInterval);
     activeWorkout = null;
+    toggleWakeLock(false);
     document.getElementById("runnerOverlay").classList.remove("active");
     document.body.style.overflow = "auto";
   }
@@ -3019,25 +2063,45 @@ function setQuickReadiness(val) {
 /* RENDER FULL PLAN SECTION */
 function renderFullPlan() {
   const container = document.getElementById("fullPlanContainer");
-  container.innerHTML = Object.entries(WORKOUTS).map(([k, w]) => `
-    <div class="card-section">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
-        <div>
-          <h3 style="margin:0;">${w.label}</h3>
-          <span style="font-size:0.8rem;color:var(--muted);">${w.focus} · ${w.duration}</span>
-        </div>
-        <button class="btn-timer-ctrl primary" onclick="startWorkoutByKey('${k}')">Iniciar Treino</button>
-      </div>
-      <div style="font-size:0.84rem;color:var(--text);margin-bottom:8px;">
-        ${w.exercises.map((e, idx) => `
-          <div style="padding:6px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;">
-            <span>${idx + 1}. ${e.name}</span>
-            <span style="color:var(--muted);">${e.sets}×${e.reps}</span>
-          </div>
-        `).join("")}
-      </div>
-    </div>
-  `).join("");
+  container.replaceChildren();
+  Object.entries(getAvailableWorkouts()).forEach(([key, workout]) => {
+    const card = document.createElement("div");
+    card.className = "card-section";
+
+    const header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;";
+    const details = document.createElement("div");
+    const title = document.createElement("h3");
+    title.style.margin = "0";
+    title.textContent = workout.label;
+    const meta = document.createElement("span");
+    meta.style.cssText = "font-size:0.8rem;color:var(--muted);";
+    meta.textContent = `${workout.focus} · ${workout.duration}`;
+    details.append(title, meta);
+
+    const start = document.createElement("button");
+    start.className = "btn-timer-ctrl primary";
+    start.textContent = "Iniciar Treino";
+    start.addEventListener("click", () => startWorkoutByKey(key));
+    header.append(details, start);
+
+    const exercises = document.createElement("div");
+    exercises.style.cssText = "font-size:0.84rem;color:var(--text);margin-bottom:8px;";
+    (Array.isArray(workout.exercises) ? workout.exercises : []).forEach((exercise, index) => {
+      const row = document.createElement("div");
+      row.style.cssText = "padding:6px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;";
+      const name = document.createElement("span");
+      name.textContent = `${index + 1}. ${exercise.name}`;
+      const target = document.createElement("span");
+      target.style.color = "var(--muted)";
+      target.textContent = `${exercise.sets}×${exercise.reps}`;
+      row.append(name, target);
+      exercises.append(row);
+    });
+
+    card.append(header, exercises);
+    container.append(card);
+  });
 }
 
 /* RENDER HISTORY SECTION */
@@ -3051,32 +2115,37 @@ function renderHistory() {
     return;
   }
 
-  container.innerHTML = sessions.map(s => {
-    const w = WORKOUTS[s.dayKey];
+  container.replaceChildren();
+  sessions.forEach(s => {
+    const w = getAvailableWorkouts()[s.dayKey];
     const m = Math.floor((s.durationSeconds || 0) / 60);
-    return `
-      <div class="history-card-item">
-        <div class="history-head-row">
-          <div>
-            <div class="history-title">${s.date.split("-").reverse().join("/")} — ${w ? w.label.split("—")[1] : s.dayKey}</div>
-            <div class="history-sub">${s.status} · Prontidão: ${s.readiness || "Verde"} · ⏱ ${m} min</div>
-          </div>
-          <button class="btn-timer-ctrl" onclick="deleteHistorySession('${s.id}')" style="color:var(--danger);font-size:0.75rem;">Excluir</button>
-        </div>
-        ${s.exercises && s.exercises.length ? `
-          <div class="history-ex-list">
-            ${s.exercises.map(e => `
-              <div style="margin-bottom:4px;">
-                <b>${e.name}:</b>
-                <span style="color:var(--neon);">${e.sets.map(x => `${x.weight || "—"} × ${x.reps || "—"}`).join(" | ")}</span>
-              </div>
-            `).join("")}
-          </div>
-        ` : ''}
-        ${s.notes ? `<div style="font-size:0.78rem;color:var(--muted);margin-top:6px;font-style:italic;">"${s.notes}"</div>` : ''}
-      </div>
-    `;
-  }).join("");
+    const card = document.createElement("div"); card.className = "history-card-item";
+    const head = document.createElement("div"); head.className = "history-head-row";
+    const details = document.createElement("div");
+    const title = document.createElement("div"); title.className = "history-title";
+    title.textContent = `${s.date.split("-").reverse().join("/")} — ${w ? w.label.split("—")[1] : s.dayKey}`;
+    const sub = document.createElement("div"); sub.className = "history-sub";
+    sub.textContent = `${s.status} · Prontidão: ${s.readiness || "Verde"} · ⏱ ${m} min`;
+    details.append(title, sub);
+    const remove = document.createElement("button"); remove.className = "btn-timer-ctrl"; remove.style.color = "var(--danger)"; remove.style.fontSize = "0.75rem"; remove.textContent = "Excluir";
+    remove.addEventListener("click", () => deleteHistorySession(s.id));
+    head.append(details, remove); card.append(head);
+    if (s.exercises && s.exercises.length) {
+      const exerciseList = document.createElement("div"); exerciseList.className = "history-ex-list";
+      s.exercises.forEach(e => {
+        const exercise = document.createElement("div"); exercise.style.marginBottom = "4px";
+        const name = document.createElement("b"); name.textContent = `${e.name}:`;
+        const sets = document.createElement("span"); sets.style.color = "var(--neon)"; sets.textContent = e.sets.map(x => `${x.weight || "—"} × ${x.reps || "—"}`).join(" | ");
+        exercise.append(name, " ", sets); exerciseList.append(exercise);
+      });
+      card.append(exerciseList);
+    }
+    if (s.notes) {
+      const notes = document.createElement("div"); notes.style.cssText = "font-size:0.78rem;color:var(--muted);margin-top:6px;font-style:italic;"; notes.textContent = `"${s.notes}"`;
+      card.append(notes);
+    }
+    container.append(card);
+  });
 }
 
 function deleteHistorySession(id) {
@@ -3089,14 +2158,61 @@ function deleteHistorySession(id) {
 }
 
 /* WAKELOCK FOR SCREEN */
+function getKeepAwakePreference() {
+  return state.keepAwakeEnabled === true;
+}
+
+function syncKeepAwakePreferenceControl() {
+  const toggle = document.getElementById('keepAwakeToggle');
+  if (toggle) toggle.checked = getKeepAwakePreference();
+}
+
+function updateKeepAwakePreference(enabled) {
+  state.keepAwakeEnabled = enabled === true;
+  persist();
+  syncKeepAwakePreferenceControl();
+  return toggleWakeLock(state.keepAwakeEnabled);
+}
+
+function clearWakeLockSentinel(sentinel) {
+  if (wakeLockSentinel === sentinel) wakeLockSentinel = null;
+}
+
+async function releaseWakeLockSentinel(sentinel) {
+  if (sentinel) { try { await sentinel.release(); } catch(e){} }
+}
+
 async function toggleWakeLock(enabled) {
   if (!enabled) {
-    if (wakeLockSentinel) { try { await wakeLockSentinel.release(); } catch(e){} wakeLockSentinel = null; }
+    wakeLockGeneration += 1;
+    const sentinel = wakeLockSentinel;
+    wakeLockSentinel = null;
+    await releaseWakeLockSentinel(sentinel);
     return;
+  }
+  if (wakeLockSentinel && !wakeLockSentinel.released) return;
+  const generation = wakeLockGeneration;
+  if (wakeLockRequest) {
+    try { await wakeLockRequest; } catch(e) { return null; }
+    return generation === wakeLockGeneration ? toggleWakeLock(true) : null;
   }
   try {
     if ('wakeLock' in navigator) {
-      wakeLockSentinel = await navigator.wakeLock.request('screen');
+      const request = (async () => {
+        const sentinel = await navigator.wakeLock.request('screen');
+        if (generation !== wakeLockGeneration) {
+          await releaseWakeLockSentinel(sentinel);
+          return null;
+        }
+        wakeLockSentinel = sentinel;
+        if (sentinel && typeof sentinel.addEventListener === 'function') {
+          sentinel.addEventListener('release', () => clearWakeLockSentinel(sentinel), { once: true });
+        }
+        return sentinel;
+      })();
+      wakeLockRequest = request;
+      try { return await request; }
+      finally { if (wakeLockRequest === request) wakeLockRequest = null; }
     }
   } catch(e) {}
 }
@@ -3104,11 +2220,11 @@ async function toggleWakeLock(enabled) {
 /* EXPORT FUNCTIONS (MARKDOWN, HTML & SHARE) */
 function generateMarkdownContent() {
   const p = state.profile;
-  let md = `# Acompanhamento de Treino — Juarez\n\n`;
+  let md = `# Acompanhamento de Treino — ${getProfileDisplayName()}\n\n`;
   md += `## Perfil\n- Peso: ${p.weight_kg} kg\n- Cintura: ${p.waist_cm} cm\n- Peito: ${p.chest_cm} cm\n- Barras: ${p.pullups}\n- Objetivo: ${p.goal}\n\n`;
   md += `## Histórico de Treinos\n\n`;
   [...state.sessions].sort((a,b) => a.date.localeCompare(b.date)).forEach(s => {
-    const w = WORKOUTS[s.dayKey];
+    const w = getAvailableWorkouts()[s.dayKey];
     md += `### ${s.date} — ${w ? w.label : s.dayKey}\n`;
     md += `- Status: ${s.status} | Prontidão: ${s.readiness || "—"} | Duração: ${Math.floor((s.durationSeconds||0)/60)} min\n`;
     if (s.exercises) {
@@ -3132,22 +2248,22 @@ function downloadFile(content, filename, type) {
 
 function exportMarkdown() {
   const md = generateMarkdownContent();
-  downloadFile(md, `treino_juarez_${new Date().toISOString().slice(0,10)}.md`, "text/markdown;charset=utf-8");
+  downloadFile(md, `treino_${getProfileFilenamePart()}_${new Date().toISOString().slice(0,10)}.md`, "text/markdown;charset=utf-8");
 }
 
 function exportHtmlReport() {
   const md = generateMarkdownContent();
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>Relatório de Treino</title></head><body style="font-family:sans-serif;max-width:800px;margin:20px auto;padding:20px;line-height:1.6;"><pre>${md}</pre></body></html>`;
-  downloadFile(html, `relatorio_juarez_${new Date().toISOString().slice(0,10)}.html`, "text/html;charset=utf-8");
+  downloadFile(html, `relatorio_${getProfileFilenamePart()}_${new Date().toISOString().slice(0,10)}.html`, "text/html;charset=utf-8");
 }
 
 async function shareMarkdown() {
   const content = generateMarkdownContent();
-  const filename = `treino_juarez_${new Date().toISOString().slice(0,10)}.md`;
+  const filename = `treino_${getProfileFilenamePart()}_${new Date().toISOString().slice(0,10)}.md`;
   const file = new File([content], filename, { type: "text/markdown;charset=utf-8" });
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     try {
-      await navigator.share({ title: "Treino Juarez", files: [file] });
+      await navigator.share({ title: `Treino — ${getProfileDisplayName()}`, files: [file] });
       return;
     } catch(e) {}
   }
@@ -3156,25 +2272,375 @@ async function shareMarkdown() {
 
 function editProfileModal() {
   const p = state.profile;
-  const w = prompt("Peso corporal (kg):", p.weight_kg);
-  if (w !== null) p.weight_kg = Number(w);
-  const c = prompt("Cintura (cm):", p.waist_cm);
-  if (c !== null) p.waist_cm = Number(c);
-  persist();
-  renderProfileSummary();
+  const editor = document.createElement('div'); editor.dataset.profileEditor = 'true';
+  editor.setAttribute('role', 'dialog'); editor.setAttribute('aria-modal', 'true'); editor.style.cssText = 'position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.35);';
+  const values = { weight: p.weight_kg, waist: p.waist_cm };
+  let step = 'weight';
+  const renderStep = () => {
+    editor.replaceChildren();
+    const label = document.createElement('label'); label.textContent = step === 'weight' ? 'Peso corporal (kg)' : 'Cintura (cm)';
+    const input = document.createElement('input'); input.type = 'text'; input.inputMode = 'decimal'; input.value = String(values[step] ?? ''); input.id = `profile-${step}`; input.style.cssText = 'width:100%;font-size:16px;min-height:44px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;'; label.htmlFor = input.id;
+    const confirm = document.createElement('button'); confirm.textContent = 'Confirmar'; confirm.dataset.action = 'confirm'; confirm.style.cssText = 'min-height:44px;background:var(--neon);color:var(--neon-text);';
+    const cancel = document.createElement('button'); cancel.textContent = 'Cancelar'; cancel.dataset.action = 'cancel'; cancel.style.cssText = 'min-height:44px;background:var(--panel2);color:var(--text);border:1px solid var(--line);';
+    const field = document.createElement('div'); field.dataset.profileField = step; field.style.cssText = 'width:min(100%,360px);padding:20px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);display:grid;gap:12px;border-radius:16px;'; field.append(label, input, confirm, cancel); editor.append(field); input.focus();
+    confirm.addEventListener('click', () => { values[step] = Number(input.value); p[step === 'weight' ? 'weight_kg' : 'waist_cm'] = values[step]; if (step === 'weight') { step = 'waist'; renderStep(); } else { persist(); renderProfileSummary(); editor.remove(); } });
+    cancel.addEventListener('click', () => { if (step === 'weight') { step = 'waist'; renderStep(); } else { p.weight_kg = values.weight; p.waist_cm = values.waist; persist(); renderProfileSummary(); editor.remove(); } });
+  };
+  document.body.append(editor); renderStep();
 }
 
-function renderProfileSummary() {
-  const p = state.profile;
-  const view = document.getElementById("profileSummaryView");
-  if (view) {
-    view.innerHTML = `
-      <b>Peso:</b> ${p.weight_kg} kg | <b>Cintura:</b> ${p.waist_cm} cm | <b>Peito:</b> ${p.chest_cm} cm<br>
-      <b>Meta:</b> ${p.goal}
-    `;
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && activeWorkout && getKeepAwakePreference() && (!wakeLockSentinel || wakeLockSentinel.released)) {
+    toggleWakeLock(true);
+  }
+});
+
+const EQUIPMENT_STORAGE_KEY = 'treino_hibrido_juarez_v5_equipment';
+const EQUIPMENT_DEFAULTS = [
+  { label: 'Encosto', value: '' },
+  { label: 'Rolo', value: '' },
+  { label: 'Posição inicial', value: '' },
+];
+
+function getEquipmentStore() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(EQUIPMENT_STORAGE_KEY) || '{}');
+    return stored && typeof stored === 'object' && !Array.isArray(stored) ? stored : {};
+  } catch {
+    return {};
   }
 }
 
+function getEquipment(exerciseId) {
+  const storedPairs = getEquipmentStore()[exerciseId];
+  return EQUIPMENT_DEFAULTS.map((fallback, index) => {
+    const storedPair = Array.isArray(storedPairs) ? storedPairs[index] : null;
+    return {
+      label: typeof storedPair?.label === 'string' ? storedPair.label : fallback.label,
+      value: typeof storedPair?.value === 'string' ? storedPair.value : '',
+    };
+  });
+}
+
+function renderEquipmentSummary(exercise) {
+  const target = document.getElementById('runnerEquipmentPairs');
+  target.replaceChildren();
+
+  getEquipment(exercise.id).forEach((pair) => {
+    const item = document.createElement('span');
+    item.dataset.equipmentPair = '';
+    item.style.cssText = 'display:inline-block;margin:4px 6px 0 0;padding:4px 8px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)';
+    item.textContent = `${pair.label}: ${pair.value || '—'}`;
+    target.append(item);
+  });
+}
+
+function createEquipmentInput(name, value) {
+  const input = document.createElement('input');
+  input.name = name;
+  input.maxLength = 40;
+  input.value = value;
+  input.style.cssText = 'width:100%;box-sizing:border-box;min-height:44px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--text);font:400 16px/1.3 "Plus Jakarta Sans",sans-serif';
+  return input;
+}
+
+function openEquipmentEditor() {
+  const exercise = activeWorkout.exerciseData[activeWorkout.currentIndex];
+  const pairs = getEquipment(exercise.id);
+  const overlay = document.createElement('div');
+  const card = document.createElement('div');
+  const actions = document.createElement('div');
+
+  overlay.dataset.equipmentEditor = '';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(9,13,18,.82);font-family:"Plus Jakarta Sans",sans-serif';
+  card.style.cssText = 'width:min(100%,390px);box-sizing:border-box;padding:16px;background:var(--panel);border:1px solid var(--line);border-radius:16px;color:var(--text);box-shadow:0 20px 48px rgba(0,0,0,.45)';
+  actions.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px';
+
+  const title = document.createElement('h3');
+  title.textContent = 'Configurar equipamento';
+  title.style.cssText = 'margin:0 0 14px;font:800 18px/1.25 "Plus Jakarta Sans",sans-serif;color:var(--text)';
+  card.append(title);
+
+  pairs.forEach((pair, index) => {
+    const row = document.createElement('div');
+    row.dataset.equipmentPair = '';
+    row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px';
+    row.append(
+      createEquipmentInput(`label-${index}`, pair.label),
+      createEquipmentInput(`value-${index}`, pair.value),
+    );
+    card.append(row);
+  });
+
+  const cancel = document.createElement('button');
+  cancel.type = 'button';
+  cancel.dataset.action = 'cancel';
+  cancel.textContent = 'Cancelar';
+  cancel.style.cssText = 'min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--text);font:800 16px "Plus Jakarta Sans",sans-serif';
+  cancel.addEventListener('click', () => overlay.remove());
+
+  const save = document.createElement('button');
+  save.type = 'button';
+  save.dataset.action = 'save';
+  save.textContent = 'Salvar';
+  save.style.cssText = 'min-height:44px;border:0;border-radius:12px;background:var(--neon);color:var(--bg);font:800 16px "Plus Jakarta Sans",sans-serif';
+  save.addEventListener('click', () => {
+    const stored = getEquipmentStore();
+    stored[exercise.id] = pairs.map((_, index) => ({
+      label: card.querySelector(`[name="label-${index}"]`).value.trim(),
+      value: card.querySelector(`[name="value-${index}"]`).value.trim(),
+    }));
+    localStorage.setItem(EQUIPMENT_STORAGE_KEY, JSON.stringify(stored));
+    overlay.remove();
+    renderEquipmentSummary(exercise);
+  });
+
+  actions.append(cancel, save);
+  card.append(actions);
+  overlay.append(card);
+  document.body.append(overlay);
+}
+
+document.querySelector('[data-action="edit"]').addEventListener('click', openEquipmentEditor);
+
+function renderProfileSummary() {
+  const p = state.profile;
+  const name = getProfileDisplayName();
+  const greeting = document.querySelector('.user-greeting');
+  const avatar = document.querySelector('.avatar');
+  if (greeting) greeting.textContent = p.name ? `Olá, ${name}!` : 'Olá!';
+  if (avatar) avatar.textContent = p.name ? name.slice(0, 1).toUpperCase() : '👤';
+  const view = document.getElementById("profileSummaryView");
+  if (view) {
+    const label = (text) => { const node = document.createElement("b"); node.textContent = text; return node; };
+    view.replaceChildren(label("Peso:"), ` ${p.weight_kg} kg | `, label("Cintura:"), ` ${p.waist_cm} cm | `, label("Peito:"), ` ${p.chest_cm} cm`, document.createElement("br"), label("Meta:"), ` ${p.goal}`);
+  }
+}
+
+function getProfileDisplayName() {
+  return String(state.profile?.name || 'Meu treino').trim() || 'Meu treino';
+}
+
+function getProfileFilenamePart() {
+  return getProfileDisplayName().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'meu-treino';
+}
+
+const IMPORTED_WORKOUTS_KEY = 'treino_hibrido_juarez_v5_imported_workouts';
+const PDFJS_ASSET_ROOT = './vendor/pdfjs-dist-5.4.54';
+
+function readImportFileAsArrayBuffer(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Não foi possível ler o PDF neste dispositivo.'));
+    reader.onload = () => resolve(reader.result);
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+async function getLocalPdfJs() {
+  if (window.pdfjsLib) return window.pdfjsLib;
+  const pdfjs = await import(`${PDFJS_ASSET_ROOT}/pdf.min.mjs`);
+  pdfjs.GlobalWorkerOptions.workerSrc = new URL(`${PDFJS_ASSET_ROOT}/pdf.worker.min.mjs`, location.href).href;
+  window.pdfjsLib = pdfjs;
+  return pdfjs;
+}
+
+async function readWorkoutPdf(file) {
+  const pdfjs = await getLocalPdfJs();
+  const data = await readImportFileAsArrayBuffer(file);
+  const pdf = await pdfjs.getDocument({ data: new Uint8Array(data) }).promise;
+  const pages = [];
+  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+    const page = await pdf.getPage(pageNumber);
+    const content = await page.getTextContent();
+    pages.push(content.items.map(item => item.str || '').join(' '));
+  }
+  const text = pages.join('\n').replace(/\u00a0/g, ' ').replace(/\r\n?/g, '\n').trim();
+  if (!text) throw new Error('O PDF não possui texto selecionável. OCR não é suportado.');
+  return text;
+}
+
+function importWorkoutId(value) {
+  return String(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
+function createImportedExercise(name, volume, notes, workoutId, position) {
+  const measure = String(volume || '').replace(/\s+/g, ' ').trim();
+  const seriesWithValue = measure.match(/^(\d+)\s*(?:s[eé]ries?|series)\s*(?:x|×)\s*(.+)$/i);
+  const setsAndReps = measure.match(/(\d+)\s*(?:s[eé]ries?|series)?\s*(?:x|×)\s*(\d+)/i);
+  const compactSetsAndReps = measure.match(/(\d+)\s*[x×]\s*(\d+)/i);
+  const duration = measure.match(/\d+(?:\s*a\s*\d+)?\s*(?:min(?:utos?)?|seg(?:undos?)?\.?|s)\b/i);
+  const seriesValue = seriesWithValue?.[2].trim() || '';
+  const numericSeriesValue = (seriesValue.match(/^(\d+)\s*(?:rep(?:eti(?:ç|c)[õo]es)?|reps?)?\.?$/i) || [])[1];
+  return {
+    id: `import-ex-${workoutId}-${position + 1}`,
+    name: String(name || '').trim(),
+    sets: Number(seriesWithValue?.[1] || (setsAndReps || compactSetsAndReps || [])[1] || 1),
+    reps: seriesWithValue ? (numericSeriesValue || seriesValue) : ((setsAndReps || compactSetsAndReps || [])[2] || (duration ? measure : '—')),
+    rest: 60,
+    rir: '—',
+    notes: String(notes || '').trim(),
+    video: '#',
+  };
+}
+
+function parseImportedWorkoutPlan(value) {
+  const normalized = String(value || '').replace(/\u00a0/g, ' ').replace(/\r\n?/g, '\n').trim();
+  const legacyDay = (normalized.match(/Dia:\s*(.+)/i) || [])[1];
+  const legacyExercise = (normalized.match(/Exercício:\s*(.+)/i) || [])[1];
+  if (legacyDay && legacyExercise) {
+    const id = `import-${legacyDay.toLowerCase().replace(/\W+/g, '-')}`;
+    return [{
+      id,
+      label: legacyDay.trim(),
+      focus: 'Importado',
+      duration: '—',
+      warmup: [],
+      exercises: [createImportedExercise(
+        legacyExercise,
+        (normalized.match(/Séries:\s*(\d+)/i) || [])[1] ? `${(normalized.match(/Séries:\s*(\d+)/i) || [])[1]} x ${(normalized.match(/Reps:\s*(.+)/i) || [])[1] || '—'}` : '',
+        '',
+        id,
+        0,
+      )],
+    }];
+  }
+
+  const days = [];
+  const dayNames = 'Segunda-feira|Terça-feira|Quarta-feira|Quinta-feira|Sexta-feira|Sábado|Domingo';
+  const dayPattern = new RegExp(`(${dayNames})\\s*:\\s*([\\s\\S]*?)(?=(?:${dayNames})\\s*:|$)`, 'gi');
+  const headerPattern = /Exerc[ií]cio\s{2,}Volume\s*\/\s*Tempo\s{2,}Instru(?:ç|c)[õo]es(?:\s*\/\s*Dica)?/i;
+  const measurePattern = /(?:\d+\s*(?:s[eé]ries?|series)?\s*(?:x|×)\s*\d+|\d+(?:\s*a\s*\d+)?\s*(?:min(?:utos?)?|seg(?:undos?)?\.?|s)\b)/i;
+  let match;
+  while ((match = dayPattern.exec(normalized))) {
+    const label = match[1];
+    const block = match[2];
+    const header = headerPattern.exec(block);
+    if (!header) continue;
+    const cells = block.slice(header.index + header[0].length).replace(/\n/g, '  ').split(/\s{2,}/).map(cell => cell.trim()).filter(Boolean);
+    const exercises = [];
+    for (let index = 0; index + 2 < cells.length; index += 3) {
+      const [name, volume, notes] = cells.slice(index, index + 3);
+      if (!name || !measurePattern.test(volume)) continue;
+      const workoutId = `import-${importWorkoutId(label)}`;
+      exercises.push(createImportedExercise(name, volume, notes, workoutId, exercises.length));
+    }
+    if (!exercises.length) continue;
+    const focus = block.slice(0, header.index).replace(/^\s*Foco\s*/i, '').replace(/\s+/g, ' ').trim() || 'Importado';
+    days.push({ id: `import-${importWorkoutId(label)}`, label, focus, duration: '—', warmup: [], exercises });
+  }
+  return days;
+}
+
+function openWorkoutImport(fromOnboarding = false) {
+  const modal = document.createElement('div');
+  modal.dataset.workoutImport = 'true';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:1500;padding:16px;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center';
+  const card = document.createElement('div');
+  card.dataset.importDialog = 'true';
+  card.style.cssText = 'box-sizing:border-box;width:min(100%,360px);padding:20px;border-radius:16px;background:var(--panel);border:1px solid var(--line);display:grid;gap:10px';
+  const text = document.createElement('textarea');
+  text.dataset.importText = 'true';
+  text.className = 'setup-import-control';
+  text.style.cssText = 'box-sizing:border-box;width:100%;max-width:100%;font-size:16px;min-height:120px';
+  const file = document.createElement('input');
+  file.type = 'file';
+  file.accept = '.txt,text/plain,.pdf,application/pdf';
+  file.dataset.importFile = 'true';
+  file.dataset.importPdf = 'true';
+  file.className = 'setup-import-control';
+  file.style.cssText = 'box-sizing:border-box;width:100%;max-width:100%;font-size:16px';
+  const result = document.createElement('div');
+  result.dataset.importResult = 'true';
+  const pdfError = document.createElement('div');
+  pdfError.dataset.importPdfError = 'true';
+  pdfError.setAttribute('role', 'alert');
+
+  file.onchange = async () => {
+    invalidateDraft();
+    const chosen = file.files[0];
+    const filename = chosen?.name?.toLowerCase() || '';
+    pdfError.textContent = '';
+    if (filename.endsWith('.txt')) {
+      const reader = new FileReader();
+      reader.onload = () => { text.value = String(reader.result || ''); invalidateDraft(); };
+      reader.onerror = () => { invalidateDraft(); result.textContent = 'Não foi possível ler o arquivo TXT.'; };
+      reader.readAsText(chosen);
+      return;
+    }
+    if (!filename.endsWith('.pdf')) {
+      result.textContent = 'Selecione um arquivo TXT ou PDF.';
+      return;
+    }
+    try {
+      text.value = await readWorkoutPdf(chosen); invalidateDraft();
+      result.textContent = 'Texto extraído localmente do PDF. Revise a prévia antes de confirmar.';
+    } catch {
+      invalidateDraft();
+      pdfError.textContent = 'Não foi possível ler este PDF. Arquivos criptografados ou sem texto não são compatíveis.';
+      result.textContent = '';
+    }
+  };
+
+  const preview = document.createElement('button');
+  preview.dataset.importPreview = 'true';
+  preview.className = 'setup-import-control';
+  preview.textContent = 'Ver prévia';
+  preview.style.minHeight = '44px';
+  const confirm = document.createElement('button');
+  confirm.dataset.importConfirm = 'true';
+  confirm.className = 'setup-import-control';
+  confirm.textContent = 'Confirmar';
+  confirm.style.minHeight = '44px';
+  confirm.disabled = true;
+  const cancel = document.createElement('button');
+  cancel.dataset.importCancel = 'true';
+  cancel.className = 'setup-import-control';
+  cancel.textContent = 'Cancelar';
+  cancel.style.minHeight = '44px';
+
+  let draft = [];
+  let previewText = '';
+  const invalidateDraft = () => { draft = []; previewText = ''; confirm.disabled = true; };
+  text.addEventListener('input', invalidateDraft);
+  preview.onclick = () => {
+    invalidateDraft();
+    draft = parseImportedWorkoutPlan(text.value);
+    if (!draft.length) {
+      result.textContent = 'Formato inválido: não reconhecemos um treino. Use "Dia:" e "Exercício:" ou um cabeçalho como "Segunda-feira: ... Exercício  Volume / Tempo  Instruções / Dica".';
+      return;
+    }
+    const exerciseCount = draft.reduce((total, workout) => total + workout.exercises.length, 0);
+    previewText = text.value;
+    confirm.disabled = false;
+    result.textContent = `Prévia: ${draft.length} ${draft.length === 1 ? 'dia' : 'dias'} · ${exerciseCount} ${exerciseCount === 1 ? 'exercício' : 'exercícios'} — ${draft.map(workout => workout.label).join(', ')}`;
+  };
+  confirm.onclick = () => {
+    if (!draft.length || confirm.disabled || text.value !== previewText) return;
+    let all = [];
+    try {
+      all = JSON.parse(localStorage.getItem(IMPORTED_WORKOUTS_KEY) || '[]');
+      if (!Array.isArray(all)) all = [];
+    } catch { }
+    let changed = false;
+    for (const workout of draft) if (!all.some(item => item.id === workout.id)) { all.push(workout); changed = true; }
+    if (changed) localStorage.setItem(IMPORTED_WORKOUTS_KEY, JSON.stringify(all));
+    modal.remove();
+    if (fromOnboarding) completeOnboardingWithOwnWorkout();
+  };
+  cancel.onclick = () => modal.remove();
+  card.append('Importar novo treino', file, text, preview, result, pdfError, confirm, cancel);
+  modal.append(card);
+  document.body.append(modal);
+}
+
+function getAvailableWorkouts() {
+  let imported = [];
+  try { imported = JSON.parse(localStorage.getItem(IMPORTED_WORKOUTS_KEY) || '[]'); } catch { }
+  if (!Array.isArray(imported)) imported = [];
+  const ownWorkouts = Object.fromEntries(imported.filter(item => item && item.id).map(item => [item.id, item]));
+  return state.onboardingConfigured === false || state.onboardingConfigured === true ? ownWorkouts : { ...WORKOUTS, ...ownWorkouts };
+}
 /* SERVICE WORKER */
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
   window.addEventListener("load", () => {
@@ -3187,7 +2653,9 @@ initCalendarStrip();
 updateTodayHero();
 calculateStreaksAndWeekly();
 renderProfileSummary();
+syncAlertPreferencesControls();
+syncKeepAwakePreferenceControl();
+initOnboardingIntroduction();
 </script>
 </body>
 </html>
-

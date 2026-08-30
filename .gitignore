@@ -1,0 +1,9 @@
+.maestri/dispatcher/
+.maestri/locks/
+
+# Dependências e estado local de ferramentas; nunca fazem parte da entrega.
+node_modules/
+.maestri/
+.codegraph/
+.superpowers/brainstorm/
+*.pid

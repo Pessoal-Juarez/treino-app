@@ -1,11 +1,13 @@
-﻿const CACHE = "treino-juarez-v6";
+﻿const CACHE = "treino-juarez-v7";
 const ASSETS = [
   "./",
   "./index.html",
   "./treino_hibrido_juarez_v3_standalone.html",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
-  "./icons/icon-512.png"
+  "./icons/icon-512.png",
+  "./vendor/pdfjs-dist-5.4.54/pdf.min.mjs",
+  "./vendor/pdfjs-dist-5.4.54/pdf.worker.min.mjs"
 ];
 
 self.addEventListener("install", (e) => {

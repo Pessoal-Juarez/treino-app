@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#090d12">
+  <title>Mockup SPEC-0007 — Isometria</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#090d12; --bg-subtle:#0f151c; --panel:#141b24; --panel2:#1b2430; --line:#263342; --line-strong:#3b4d61; --text:#f3f7fa; --muted:#8e9fae; --neon:#d4ff32; --neon-text:#0b1502; --radius-sm:10px; --radius-md:16px; --radius-lg:22px; --shadow:0 14px 40px rgba(0,0,0,.35); --font-mono:"JetBrains Mono",monospace; --font-main:"Plus Jakarta Sans",system-ui,-apple-system,sans-serif; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:var(--font-main); -webkit-font-smoothing:antialiased; }
+    .runner { max-width:600px; min-height:100vh; margin:auto; padding-bottom:88px; }
+    .runner-header { height:64px; padding:14px 18px; display:flex; align-items:center; justify-content:space-between; background:var(--bg-subtle); border-bottom:1px solid var(--line); position:sticky; top:0; }
+    .btn-close,.overview { min-height:36px; padding:6px 12px; border-radius:10px; border:1px solid var(--line); background:var(--panel); color:var(--text); font:600 .84rem var(--font-main); }
+    .overview { color:var(--neon); font-weight:700; }
+    .total { padding:6px 12px; border:1px solid var(--line); border-radius:999px; background:var(--panel); font:700 .88rem var(--font-mono); }
+    .progress { height:3px; margin-top:-3px; background:var(--neon); box-shadow:0 0 8px var(--neon); width:14%; }
+    main { padding:20px 18px; }
+    .eyebrow { margin:0 0 6px; color:var(--neon); font-size:.82rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; }
+    h1 { margin:0 0 8px; color:#fff; font-size:1.6rem; line-height:1.25; }
+    .tags { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
+    .tag { padding:4px 9px; border:1px solid var(--line); border-radius:999px; background:var(--panel); color:var(--muted); font-size:.78rem; }
+    .video { display:inline-flex; min-height:36px; align-items:center; gap:6px; padding:6px 12px; margin-bottom:16px; border:1px solid var(--line-strong); border-radius:10px; background:var(--panel2); color:var(--neon); font-size:.8rem; font-weight:700; }
+    .isometric-card { position:relative; overflow:hidden; margin-bottom:18px; padding:16px; border:1px solid rgba(212,255,50,.32); border-radius:var(--radius-lg); background:linear-gradient(135deg,rgba(212,255,50,.09),var(--panel) 58%); box-shadow:var(--shadow); text-align:center; }
+    .isometric-card:before { content:"ISOMETRIA"; position:absolute; right:12px; top:12px; padding:4px 8px; border:1px solid rgba(212,255,50,.36); border-radius:999px; color:var(--neon); font-size:.66rem; font-weight:800; letter-spacing:.08em; }
+    .timer-label { margin-top:3px; color:var(--muted); font-size:.76rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; }
+    .timer { margin:4px 0 12px; color:var(--neon); font:800 3.15rem/1 var(--font-mono); letter-spacing:.03em; }
+    .track { height:6px; margin-bottom:14px; border-radius:999px; background:var(--bg-subtle); overflow:hidden; }
+    .fill { width:25%; height:100%; background:var(--neon); box-shadow:0 0 8px var(--neon); }
+    .actions { display:grid; grid-template-columns:1fr 1.25fr; gap:8px; }
+    button { min-height:44px; border-radius:12px; font:700 .9rem var(--font-main); }
+    .adjust { border:1px solid var(--line); background:var(--panel2); color:var(--text); }
+    .play { border:1px solid var(--neon); background:var(--neon); color:var(--neon-text); box-shadow:0 8px 24px rgba(212,255,50,.22); font-weight:800; }
+    .hint { margin:12px 0 0; color:var(--muted); font-size:.75rem; line-height:1.35; }
+    .record { display:flex; align-items:center; gap:12px; padding:12px 14px; border:1px solid rgba(212,255,50,.25); border-radius:var(--radius-md); background:linear-gradient(135deg,rgba(212,255,50,.08),rgba(27,36,48,.8)); }
+    .record .star { font-size:1.4rem; }
+    .record small { display:block; color:var(--muted); font-size:.74rem; font-weight:700; text-transform:uppercase; }
+    .record strong { display:block; margin-top:2px; color:var(--neon); font:800 .95rem var(--font-mono); }
+    .sets { margin-top:18px; color:var(--text); font-size:.9rem; font-weight:700; }
+    .set { display:flex; align-items:center; gap:10px; margin-top:10px; padding:12px 14px; border:1px solid var(--line); border-radius:var(--radius-md); background:var(--panel); }
+    .number { display:grid; width:32px; height:32px; place-items:center; border-radius:8px; background:var(--panel2); color:var(--muted); font:800 .9rem var(--font-mono); }
+    .set span:last-child { color:var(--muted); font-size:.82rem; }
+    .caption { padding:16px 18px 0; color:var(--muted); font-size:.72rem; line-height:1.45; }
+  </style>
+</head>
+<body>
+  <div class="runner">
+    <header class="runner-header">
+      <button class="btn-close">✕ Sair</button>
+      <div class="total">⏱ 18:24</div>
+      <button class="overview">📑 Visão Geral</button>
+    </header>
+    <div class="progress"></div>
+    <main>
+      <p class="eyebrow">Exercício 7 de 7</p>
+      <h1>Prancha nos antebraços</h1>
+      <div class="tags"><span class="tag">2 séries</span><span class="tag">40–60 s</span><span class="tag">Descanso 30s</span><span class="tag">RIR —</span></div>
+      <div class="video">▶ Ver Execução Correta</div>
+
+      <section class="record"><span class="star">⭐</span><div><small>Última Carga Registrada</small><strong>—</strong></div></section>
+      <section class="isometric-card" aria-label="Temporizador de isometria">
+        <div class="timer-label">Tempo da série</div><div class="timer">00:45</div><div class="actions"><button class="adjust">Ajustar · 45 s</button><button class="play">▶ Iniciar série</button></div>
+      </section>
+      <div class="sets">Séries Realizadas:</div>
+      <div class="set"><span class="number">1</span><span>40–60 s · ainda não concluída</span></div>
+      <div class="set"><span class="number">2</span><span>40–60 s · ainda não concluída</span></div>
+    </main>
+    <p class="caption">Mockup de referência — iOS 390×844. O cartão fica imediatamente antes das séries, após equipamento, última carga e descanso; séries e descanso não mudam.</p>
+  </div>
+</body>
+</html>
