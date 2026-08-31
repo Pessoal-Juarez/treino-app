@@ -16,6 +16,6 @@
 - [Pacotes](packages.md)
 <!-- specsfy:documentator:end -->
 
-## Guias operacionais
+## Guias operacionais.
 
 - [Partitura com Procurador](partitura-procurador.md) — como delegar preferências seguras, entender as exceções e testar o resultado final.
